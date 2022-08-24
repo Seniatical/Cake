@@ -1,4 +1,4 @@
-from math import sin, cos, pi, tan
+from math import sin, cos, tan, pi
 from cake.geometry.basic import Shape
 
 
