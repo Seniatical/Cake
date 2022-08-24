@@ -127,7 +127,7 @@ class Shape(ABC):
             return 0
         return self.angles[similar_permutation]
 
-    def get_length(self, length: str) -> None:
+    def get_length(self, length: str) -> float:
         """Get a length from the polygon
 
         Parameters
@@ -143,6 +143,25 @@ class Shape(ABC):
             return _length
 
         return _length
+
+    def update_length(self, length: str, value: float) -> None:
+        """Update a length
+
+        Parameters
+        ----------
+        length: :class:`str`
+            Length to update
+        value: :class:`str`
+            New length value
+        """
+        length = length.upper()
+        try:
+            self.lengths[length] = float(value)
+        except KeyError:
+            try:
+                self.lengths[length[::-1]] = float(value)
+            except KeyError:
+                raise ValueError(f"Cannot find length {length}")
 
     @abstractmethod
     def set_angle(self, angle: str, size: float) -> float:
