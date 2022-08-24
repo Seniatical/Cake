@@ -6,15 +6,3 @@
 
 ## Overview
 Cake, a math library for python.
-
-## Examples
-
-### Geometry/Polygons
-```py
->>> from cake.geometry import Polygon
->>> p = Polygon(3, 3, 3, 3)
->>> p.apothem_from_crad()
-1.5
->>> p.area()
-9.0
-```
