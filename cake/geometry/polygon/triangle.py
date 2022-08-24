@@ -34,14 +34,6 @@ class Triangle(Polygon):
 
         super().__init__(a, b, c, angles=angles)
 
-        if len(self.angles) == 2:
-            # Fill last angle in, if exists
-
-            if angle := self.get_angle("BCA"):
-                self.set_angle("CAB", (180 - 90 - degrees(angle)))
-            else:
-                self.set_angle("BCA", (180 - 90 - degrees(self.get_angle("CAB"))))
-
     def __post_init__(self):
         if len(self.lengths) != 3:
             raise ValueError("Triangles must have 3 sides")
@@ -163,6 +155,14 @@ class RATriangle(Triangle):
                 ) -> None:
         angles.update(ABC=90)
         super().__init__(a, b, c, angles=angles)
+
+        if len(self.angles) == 2:
+            # Fill last angle in, if exists
+
+            if angle := self.get_angle("BCA"):
+                self.set_angle("CAB", (180 - 90 - degrees(angle)))
+            else:
+                self.set_angle("BCA", (180 - 90 - degrees(self.get_angle("CAB"))))
 
     def __post_init__(self):
         super().__post_init__()
