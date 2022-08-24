@@ -48,47 +48,39 @@ class Polygon(Shape):
         """ Returns size of interior polygon for regular polygons """
         return 180 - (360 / self.sides)
 
-    def circumradius(self, *, side_index: int = 0) -> float:
+    def circumradius(self, *, length: str = None) -> float:
         """ Returns the circumradius for polygone
 
         Parameters
         ----------
-        size_index: :class:`int`
-            Index of side to use
-
-            .. rubric:: Example
-                .. code-block::py
-                    >>> p = Polygon(3, 3, 3, 3)
-                        #           ^  ^  ^  ^
-                        #           a  b  c  d
-                    >>> p.circumradius(side_index=2)
-                    # Uses side c
+        length: :class:`str`
+            Length to use
         """
-        side = self.lengths[list(self.lengths)[side_index]]
+        side = self.get_length(length or list(self.lengths.keys())[0])
 
         return side / (2 * sin(pi / self.sides))
 
-    def apothem_from_length(self, *, side_index: int = 0) -> float:
+    def apothem_from_length(self, *, length: str = None) -> float:
         """ Return apothem using a side of polygon
 
         Parameters
         ----------
-        side_index: :class:`int`
-            Index of side to use, refer to :meth:`cake.geometry.Polygon.circumradius` for usage.
+        length: :class:`str`
+            Length to use
         """
-        side = self.lengths[list(self.lengths)[side_index]]
+        side = self.get_length(length or list(self.lengths.keys())[0])
 
         return (side / (2 * tan(pi / self.sides)))
 
-    def apothem_from_crad(self, *, side_index: int = 0):
+    def apothem_from_crad(self, *, length: str = None):
         """ Return apothem using the circumradius of polygon
 
         Parameters
         ----------
-        side_index: :class:`int`
-            Index of side to use, refer to :meth:`cake.geometry.Polygon.circumradius` for usage.
+        length: :class:`str`
+            Length to use when calculating circumradius
         """
-        c_rad = self.circumradius(side_index=side_index)
+        c_rad = self.circumradius(length=length)
         return c_rad * cos(pi / self.sides)
 
     def is_regular(self) -> bool:
@@ -102,13 +94,10 @@ class Polygon(Shape):
             assuming there all the same.
         """
         r = sum(self.lengths.values()) % (self.lengths[list(self.lengths)[0]])
+        interior = self.interior_angle()
+        a = all(i == interior for i in self.angles.values())
 
-        if self.angles:
-            a = sum(self.angles) % self.lengths[list(self.angles.keys())[0]]
-        else:
-            a = 0
-
-        if r == 0 and a == 0:
+        if not r and a:
             return True
         return False
 
