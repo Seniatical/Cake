@@ -1,3 +1,4 @@
+from math import sin
 from typing import Dict
 from .base import Polygon
 
@@ -82,6 +83,8 @@ class RATriangle(Triangle):
                  *,
                  angles: Dict[str, float] = {}
                 ) -> None:
+
+        angles.update({"ABC": 90})
         super().__init__(a, b, c, angles=angles)
 
         self.a = a
@@ -95,7 +98,13 @@ class RATriangle(Triangle):
     def calc_hypotenuse(self, update: bool = False) -> float:
         if self.a and self.b:
             c = ((self.a ** 2) + (self.b ** 2)) ** 0.5
-            if update:
-                self.c = c
-                self.lengths["c"] = c
-            return c
+        elif self.b and (angle := self.get_angle("ABC")):
+            c = sin(angle) * self.b
+        elif self.a and (angle := self.get_angle("CAB")):
+            c = sin(angle) * self.a
+        else:
+            raise ValueError("Not enough values")
+        if update:
+            self.update_length("CA", c)
+
+        return c
