@@ -65,7 +65,6 @@ class Triangle(Polygon):
             self.update_length(side_name, side_value)
         return side_name, side_value
 
-
     def calc_side_ucosine(self, *, set: bool = False) -> Tuple[str, int]:
         """Calculates remaining length using cosine rule
 
@@ -93,6 +92,20 @@ class Triangle(Polygon):
         if set:
             self.update_length(name, c)
         return name, c
+
+    def median(self) -> float:
+        """Returns median of triangle"""
+        sides = [self.a, self.b, self.c]
+
+        if not all(sides):
+            raise ValueError("Inorder to workout median of triangle, all sides must be provided")
+        
+        a, b, c = sides
+        a = (a ** 2) / 2
+        b = (b ** 2) / 4
+        c = (c ** 2) / 2
+
+        return ((a + c) - b) ** 0.5
 
     def is_right_angled(self) -> bool:
         """Check if triangle is a right angle triangle"""
