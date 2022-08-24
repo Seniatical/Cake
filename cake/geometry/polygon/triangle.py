@@ -129,11 +129,10 @@ class Triangle(Polygon):
             return False
 
         a, b, c = self.lengths.values()
-        A, B, C = self.angles.values()
-
-        if (a == b) or (b == c) or (a == c):
-            return True
-        if (A == B) or (B == C) or (A == C):
+        A, B, C = [self.get_angle(i) for i in self.angle_maps.keys()]
+        
+        if ((a == b) or (b == c) or (c == a)) and \
+            ((A == B) or (B == C) or (C == A)):
             return True
         return False
 
