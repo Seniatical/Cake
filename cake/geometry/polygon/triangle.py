@@ -1,5 +1,5 @@
 from math import cos, sin, tan, degrees
-from typing import Dict
+from typing import Dict, Tuple
 from .base import Polygon
 
 
@@ -16,12 +16,59 @@ class Triangle(Polygon):
     ----------
     Shares same parameters as :class:`Polygon`
     """
+    angle_maps = {
+        "ABC": "CA",
+        "BCA": "AB",
+        "CAB": "BC"
+    }
+
+    def __init__(self, 
+                 a: float, 
+                 b: float, 
+                 c: float,
+                 *,
+                 angles: Dict[str, float] = {}
+                ) -> None:
+        self.a, self.b, self.c = a, b, c
+
+        super().__init__(a, b, c, angles=angles)
+
+        if len(self.angles) == 2:
+            # Fill last angle in, if exists
+
+            if angle := self.get_angle("BCA"):
+                self.set_angle("CAB", (180 - 90 - degrees(angle)))
+            else:
+                self.set_angle("BCA", (180 - 90 - degrees(self.get_angle("CAB"))))
+
     def __post_init__(self):
         if len(self.lengths) != 3:
             raise ValueError("Triangles must have 3 sides")
         if sum(self.angles.values()) > 180:
             raise TypeError("Angles in triangle must sum to 180")
         
+    def calc_side_usine(self, pair: Tuple[str, str], angle: str, *, set: bool = False) -> Tuple[str, int]:
+        """Calculate the length of a side using sine rule
+
+        Parameters
+        ----------
+        pair: Tuple[:class:`str`, :class:`str`]
+            A paired tuple with (SIDE, ANGLE),
+            were side is one of the triangles length name and angle is its opposite angle.
+        angle: :class:`str`
+            Name of the angle which is opposite to the desired length
+        """
+        length, _angle = pair
+        length_value = self.get_length(length)
+        _angle_value = self.get_angle(_angle)
+
+        angle_value = self.get_angle(angle)
+        side_name = self.get_length(self.angle_maps.get(self.get_angle(angle, name=True)), name=True)
+        side_value = (length_value / sin(_angle_value)) * sin(angle_value)
+
+        if set:
+            self.update_length(side_name, side_value)
+        return side_name, side_value
 
     def is_right_angled(self) -> bool:
         """Check if triangle is a right angle triangle"""
@@ -82,19 +129,8 @@ class RATriangle(Triangle):
                  *,
                  angles: Dict[str, float] = {}
                 ) -> None:
-
         angles.update(ABC=90)
         super().__init__(a, b, c, angles=angles)
-
-        if len(self.angles) == 2:
-            # Fill last angle in
-
-            if angle := self.get_angle("BCA"):
-                self.set_angle("CAB", (180 - 90 - degrees(angle)))
-            else:
-                self.set_angle("BCA", (180 - 90 - degrees(self.get_angle("CAB"))))
-
-        self.a, self.b, self.c = a, b, c
 
     def __post_init__(self):
         super().__post_init__()
