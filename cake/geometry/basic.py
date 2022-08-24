@@ -125,9 +125,9 @@ class Shape(ABC):
 
         marker = angle[1]
         similar_permutation = None
-        for angle in self.angles:
-            if angle[1] == marker:
-                similar_permutation = angle
+        for _angle in self.angles:
+            if _angle[1] == marker:
+                similar_permutation = _angle
                 break
         
         if name:
