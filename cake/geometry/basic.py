@@ -14,6 +14,20 @@ def _get_numerical_key(_data: dict) -> int:
     return ascii_lowercase.index(list(keys)[-1])
 
 
+def _chain_items(data: list) -> list:
+    # [A, B, C, D]
+    d = [i.upper() for i in data]
+    result = []
+    previous = d[0]
+
+    for i in d[1:]:
+        result.append(previous + i)
+        previous = i
+    result.append(previous + d[0])
+
+    return result
+
+
 class Shape(ABC):
     r"""
     Base object for generating shapes, or shape types
@@ -78,12 +92,15 @@ class Shape(ABC):
                 curr += 1
                 self.lengths[ascii_lowercase[curr]] = v
 
+        _lengths = _chain_items(self.lengths.keys())
+        self.lengths = {_lengths[i]: self.lengths[v] for i, v in enumerate(self.lengths.keys())}
+
         self.sides = len(self.lengths)
         self._clean_angles()
 
     def possible_angles(self) -> List[str]:
         """Returns all possible angle combinations in the shape"""
-        angles = permutations(self.lengths, 3)
+        angles = permutations([i[1] for i in self.lengths], 3)
 
         return [''.join(angle).upper() for angle in angles]
 
@@ -95,7 +112,8 @@ class Shape(ABC):
         angle: :class:`str`
             Angle to search for
         """
-        if angle.upper() not in self.possible_angles():
+        angle = angle.upper()
+        if angle not in self.possible_angles():
             raise ValueError("Unknown angle")
 
         marker = angle[1]
@@ -108,6 +126,23 @@ class Shape(ABC):
         if not similar_permutation:
             return 0
         return self.angles[similar_permutation]
+
+    def get_length(self, length: str) -> None:
+        """Get a length from the polygon
+
+        Parameters
+        ----------
+        length: :class:`str`
+            Length to get
+        """
+        _length = self.lengths.get(length.upper())
+        if not _length:
+            _length = self.lengths.get(length[::-1].upper())
+            if not _length:
+                raise ValueError(f"Cannot find length {length}")
+            return _length
+
+        return _length
 
     @abstractmethod
     def set_angle(self, angle: str, size: float) -> float:
