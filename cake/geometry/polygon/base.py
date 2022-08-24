@@ -1,4 +1,4 @@
-from math import sin, cos, tan, pi
+from math import radians, sin, cos, tan, pi
 from cake.geometry.basic import Shape
 
 
@@ -22,13 +22,13 @@ class Polygon(Shape):
         side = self.lengths[list(self.lengths)[0]]
         return (self.sides * side * self.apothem_from_crad()) / 2
 
-    def set_angle(self, angle: str, size: float) -> None:
+    def set_angle(self, angle: str, size: float, *, convert: bool = True) -> None:
         if not 0 < size < 360:
             raise ValueError("Angle must be greater then 0, and less then 360")
 
-        if any(i for i in angle if i not in self.lengths):
-            raise ValueError("Unknown points in angle")
-        self.angles[angle] = size
+        angle = self.get_angle(angle, name=True)
+        
+        self.angles[angle] = radians(size) if convert else size
 
     def perimeter(self) -> float:
         return sum(self.lengths.values())
