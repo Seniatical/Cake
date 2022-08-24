@@ -21,6 +21,7 @@ class Triangle(Polygon):
         "BCA": "AB",
         "CAB": "BC"
     }
+    length_maps = {v: k for k, v in angle_maps.items()}
 
     def __init__(self, 
                  a: float, 
@@ -57,6 +58,8 @@ class Triangle(Polygon):
             were side is one of the triangles length name and angle is its opposite angle.
         angle: :class:`str`
             Name of the angle which is opposite to the desired length
+        set: :class:`bool`
+            Whether to set value
         """
         length, _angle = pair
         length_value = self.get_length(length)
@@ -69,6 +72,35 @@ class Triangle(Polygon):
         if set:
             self.update_length(side_name, side_value)
         return side_name, side_value
+
+
+    def calc_side_ucosine(self, *, set: bool = False) -> Tuple[str, int]:
+        """Calculates remaining length using cosine rule
+
+        Parameters
+        ----------
+        set: :class:`bool`
+            Whether to set value
+        """
+        sides = [self.a, self.b, self.c]
+        if all(sides) or len([i for i in sides if i != 0]) < 2:
+            raise ValueError("Cannot use cosine rule on current state")
+
+        index = sides.index(0)
+        name = tuple(self.lengths.keys())[index]
+        op_angle = self.get_angle(self.length_maps[name])
+
+        sides.pop(index)
+        a, b = sides
+
+        if not op_angle:
+            raise ValueError(f"Cannot use cosine rule, angle opposite {name} is missing")
+        
+        c = ((a ** 2) + (b ** 2) - (2 * a * b) * cos(op_angle)) ** 0.5
+
+        if set:
+            self.update_length(name, c)
+        return name, c
 
     def is_right_angled(self) -> bool:
         """Check if triangle is a right angle triangle"""
