@@ -1,4 +1,4 @@
-from math import sin
+from math import cos, sin, tan
 from typing import Dict
 from .base import Polygon
 
@@ -71,10 +71,9 @@ class RATriangle(Triangle):
         >>> from cake.geometry import RATriangle
         >>> t = RATriangle(5, 12, 0)
         >>> t.calc_hypotenuse(update=True)
-        13
+        13.0
         >>> t
-        Polygon(a=5, b=12, c=13)
-        >>> t = RATriangle(5, 0, 0, angles={"bca": 30})
+        Polygon(a=5, b=12, c=13.0)
     """
     def __init__(self, 
                  a: float, 
@@ -95,16 +94,44 @@ class RATriangle(Triangle):
         super().__post_init__()
         assert self.is_right_angled()
 
-    def calc_hypotenuse(self, update: bool = False) -> float:
+    def calc_hypotenuse(self, *, update: bool = False) -> float:
         if self.a and self.b:
+            # A ** 2 + B ** 2 = C ** 2
             c = ((self.a ** 2) + (self.b ** 2)) ** 0.5
-        elif self.b and (angle := self.get_angle("ABC")):
+        elif self.b and (angle := self.get_angle("BCA")):
+            # sin C * B = C
             c = sin(angle) * self.b
         elif self.a and (angle := self.get_angle("CAB")):
-            c = sin(angle) * self.a
+            # A / cos A = C
+            c = self.a / cos(angle)
         else:
             raise ValueError("Not enough values")
         if update:
             self.update_length("CA", c)
-
+            self.c = c
         return c
+
+    def calc_adjacent(self, *, update: bool = False) -> float:
+        if self.c and self.b:
+            a = ((self.c ** 2) - (self.b ** 2)) ** 0.5
+        elif self.c and (angle := self.get_angle("ABC")):
+            a = cos(angle) * self.c
+        else:
+            raise ValueError("Not enough values")
+        if update:
+            self.update_length("AB", a)
+            self.a = a
+        return a
+
+    def calc_opposite(self, *, update: bool = False) -> float:
+        if self.c and self.a:
+            # sqrt(C ** 2 - A ** 2) = B
+            b = ((self.c ** 2) - (self.a ** 2)) ** 0.5
+        elif self.a and (angle := self.get_angle("CAB")):
+            b = tan(angle) * self.a
+        else:
+            raise ValueError("Not enough values")
+        if update:
+            self.update_length("BC", b)
+            self.b =b
+        return b
