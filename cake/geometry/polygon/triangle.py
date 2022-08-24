@@ -1,4 +1,4 @@
-from math import cos, sin, tan
+from math import cos, sin, tan, degrees
 from typing import Dict
 from .base import Polygon
 
@@ -83,12 +83,18 @@ class RATriangle(Triangle):
                  angles: Dict[str, float] = {}
                 ) -> None:
 
-        angles.update({"ABC": 90})
+        angles.update(ABC=90)
         super().__init__(a, b, c, angles=angles)
 
-        self.a = a
-        self.b = b
-        self.c = c
+        if len(self.angles) == 2:
+            # Fill last angle in
+
+            if angle := self.get_angle("BCA"):
+                self.set_angle("CAB", (180 - 90 - degrees(angle)))
+            else:
+                self.set_angle("BCA", (180 - 90 - degrees(self.get_angle("CAB"))))
+
+        self.a, self.b, self.c = a, b, c
 
     def __post_init__(self):
         super().__post_init__()
