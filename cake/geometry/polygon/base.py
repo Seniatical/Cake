@@ -59,8 +59,8 @@ class Polygon(Shape):
             .. rubric:: Example
                 .. code-block::py
                     >>> p = Polygon(3, 3, 3, 3)
-                                    ^  ^  ^  ^
-                                    a  b  c  d
+                        #           ^  ^  ^  ^
+                        #           a  b  c  d
                     >>> p.circumradius(side_index=2)
                     # Uses side c
         """
