@@ -1,8 +1,9 @@
 # A base ABC class for defining geometrical objects
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Union
 from string import ascii_lowercase
 from itertools import permutations
+from math import radians        # Convert deg to rad
 
 
 def _get_numerical_key(_data: dict) -> int:
@@ -59,7 +60,7 @@ class Shape(ABC):
                 >>> Shape(5, 12, 13, angles={"BAC": 30, "ABC": 60, "BCA": 90})
                 >>> ... # Valid shape
     """
-    def _clean_angles(self) -> None:
+    def _clean_angles(self, convert: bool) -> None:
         if any(i for i in self.angles.values() if not 0 < i < 360):
             raise ValueError("Angles must be greater then 0 and less then 360")
 
@@ -75,6 +76,9 @@ class Shape(ABC):
             if angle.upper() not in combinations:
                 raise ValueError(f"Unknown points in angle {angle}")
             if angle[1] not in markers:
+                if convert:
+                    value = radians(value)
+
                 markers.append(angle[1])
                 self.angles[angle.upper()] = value
 
@@ -82,6 +86,7 @@ class Shape(ABC):
         self, *r_lengths,
         lengths: Dict[str, float] = None,
         angles: Dict[str, float] = None,
+        convert_to_rad: bool = True
     ) -> None:
         self.lengths = lengths or dict()
         self.angles = angles or dict()
@@ -96,7 +101,7 @@ class Shape(ABC):
         self.lengths = {_lengths[i]: self.lengths[v] for i, v in enumerate(self.lengths.keys())}
 
         self.sides = len(self.lengths)
-        self._clean_angles()
+        self._clean_angles(convert_to_rad)
 
     def possible_angles(self) -> List[str]:
         """Returns all possible angle combinations in the shape"""
@@ -104,13 +109,15 @@ class Shape(ABC):
 
         return [''.join(angle).upper() for angle in angles]
 
-    def get_angle(self, angle: str) -> List[str]:
+    def get_angle(self, angle: str, *, name: bool = False) -> Union[float, str]:
         """Get an angle assigned from :attr:`Shape.angles`
 
         Parameters
         ----------
         angle: :class:`str`
             Angle to search for
+        name: :class:`bool`
+            Whether to return classified name instead of value
         """
         angle = angle.upper()
         if angle not in self.possible_angles():
@@ -123,24 +130,35 @@ class Shape(ABC):
                 similar_permutation = angle
                 break
         
+        if name:
+            return similar_permutation or angle
+
         if not similar_permutation:
             return 0
         return self.angles[similar_permutation]
 
-    def get_length(self, length: str) -> float:
+    def get_length(self, length: str, *, name: bool = False) -> float:
         """Get a length from the polygon
 
         Parameters
         ----------
         length: :class:`str`
             Length to get
+        name: :class:`str`
+            Whether to return the true length name instead of value
         """
-        _length = self.lengths.get(length.upper())
-        if not _length:
-            _length = self.lengths.get(length[::-1].upper())
-            if not _length:
+        length = length.upper()
+
+        _length = self.lengths.get(length)
+        if _length is None:
+            length = length[::-1]
+            _length = self.lengths.get(length)
+
+            if _length is None:
                 raise ValueError(f"Cannot find length {length}")
-            return _length
+
+        if name:
+            return length
 
         return _length
 
@@ -151,17 +169,10 @@ class Shape(ABC):
         ----------
         length: :class:`str`
             Length to update
-        value: :class:`str`
+        value: :class:`float`
             New length value
         """
-        length = length.upper()
-        try:
-            self.lengths[length] = float(value)
-        except KeyError:
-            try:
-                self.lengths[length[::-1]] = float(value)
-            except KeyError:
-                raise ValueError(f"Cannot find length {length}")
+        self.lengths[self.get_length(length, name=True)] = float(value)
 
     @abstractmethod
     def set_angle(self, angle: str, size: float) -> float:
