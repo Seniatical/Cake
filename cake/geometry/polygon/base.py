@@ -1,5 +1,6 @@
 from math import radians, sin, cos, tan, pi
 from cake.geometry.basic import Shape
+from typing import Tuple
 
 
 class Polygon(Shape):
@@ -82,6 +83,32 @@ class Polygon(Shape):
         """
         c_rad = self.circumradius(length=length)
         return c_rad * cos(pi / self.sides)
+
+    def centroid(self, **vec_y) -> Tuple[int, int]:
+        """ Calculates the centroid of the polygon.
+
+        Parameters
+        ----------
+        **vec_y: :class:`float`
+            Kwarg mapping for :meth:`Shape.vectorize`
+        """
+        area = 1 / (6 * self.area())
+        try:
+            vec = self._vector
+        except AttributeError:
+            vec = self.vectorize(**vec_y)
+
+        cx, cy = 0, 0
+        
+        for i in range(len(vec)):
+            x0, y0 = vec[i - 1]
+            x1, y1 = vec[i]
+
+            v = (x0 * y1) - (x1 * y0)
+            cx += v * (x0 + x1)
+            cy += v * (y0 + y1)
+        
+        return ((area * cx), (area * cy))
 
     def is_regular(self) -> bool:
         """Checks whether the polygon is regular.
