@@ -89,7 +89,34 @@ class Triangle(Polygon):
 
         if set:
             self.update_length(side_name, side_value)
+            self.a, self.b, self.c = self.lengths.values()
         return side_name, side_value
+
+    def calc_angle_usine(self, pair: Tuple[str, str], length: str, *, set: bool = False) -> Tuple[str, int]:
+        """Calculate the size of an angle using sine rule
+
+        Parameters
+        ----------
+        pair: Tuple[:class:`str`, :class:`str`]
+            A paired tuple with (SIDE, ANGLE),
+            were side is one of the triangles length name and angle is its opposite angle.
+        length: :class:`str`
+            Name of length opposite desired angle
+        set: :class:`bool`
+            Whether to set value  
+        """
+        l, a = pair
+        lv = self.get_length(l)
+        av = self.get_angle(a)
+
+        lengthv = self.get_length(length)
+        angle_name = self.get_opposite_angle(length)
+        angle_value = (sin(av) / lv) * lengthv
+
+        if set:
+            self.update_length(angle_name, angle_value)
+            self.a, self.b, self.c = self.lengths.values()
+        return angle_name, angle_value
 
     def calc_side_ucosine(self, *, set: bool = False) -> Tuple[str, int]:
         """Calculates remaining length using cosine rule
@@ -118,6 +145,7 @@ class Triangle(Polygon):
 
         if set:
             self.update_length(name, c)
+            self.a, self.b, self.c = self.lengths.values()
         return name, c
 
     def calc_angle_ucosine(self, length: str, *, set: bool = False) -> Tuple[str, int]:
