@@ -106,6 +106,20 @@ class Triangle(Polygon):
 
         return ((a + c) - b) ** 0.5
 
+    def centroid(self, **y_kwds) -> Tuple[int, int]:
+        """ Calculates the centroid of the triangle.
+
+        Parameters
+        ----------
+        **y_kwds: :class:`float`
+            kwargs for mapping of Y values, refer to :meth:`Shape.vectorize`
+        """
+        coords = list(self.vectorize(**y_kwds))
+        x_centroid = sum(coord[0] for coord in coords) / len(coords)
+        y_centroid = sum(coord[1] for coord in coords) / len(coords)
+
+        return (x_centroid, y_centroid)
+
     def is_right_angled(self) -> bool:
         """Check if triangle is a right angle triangle"""
         a, b, c = self.lengths.values()
