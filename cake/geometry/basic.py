@@ -42,6 +42,9 @@ class Shape(ABC):
         Defining shapes using points,
         Cake supports the use of vectors and can export shapes as vectors
 
+        .. warning::
+            For better support, use :meth:`Shape.from_vector`
+
         .. rubric:: Defining
 
         .. code-block::py
@@ -128,6 +131,32 @@ class Shape(ABC):
         self._clean_angles(convert_to_rad)
         self._seperate_lengths()
 
+    @classmethod
+    def from_vector(cls, vector: List[Tuple[int, int]], **kwds) -> "Shape":
+        """Construct a shape from a vector
+
+        .. rubric:: Example
+
+        .. code-block::py
+            >>> from cake.geometry import Shape
+            >>> Shape.from_vector([(0, 0), (2, 5), (4, 0)])
+            Shape(AB=4.0 BC=5.385164807134504 CA=5.385164807134504)
+        """
+        cleaned_vec = []
+
+        for i in range(len(vector)):
+            x1, y1 = vector[i - 1]
+            x2, y2 = vector[i]
+
+            distance = (((x2 - x1) ** 2) + ((y2 - y1) ** 2)) ** 0.5
+            cleaned_vec.append(distance)
+
+        s = cls(*cleaned_vec, **kwds)
+        s._vector = vector
+
+        return s
+
+
     def possible_angles(self) -> List[str]:
         """Returns all possible angle combinations in the shape"""
         angles = permutations([i[1] for i in self.lengths], 3)
@@ -213,6 +242,9 @@ class Shape(ABC):
                 >>> s.vectorize(AB=0, BC=5, CA=0)
                 ... [(2, 0), (3, 5), (4, 0)]
         """
+        if pre := getattr(self, "_vector", None):
+            return pre
+
         y_kwds = {**self.y_centroids, **y_kwds}
 
         for length in self.lengths:
@@ -221,28 +253,8 @@ class Shape(ABC):
             yield (x, y)
 
     @abstractmethod
-    def set_angle(self, angle: str, size: float) -> float:
-        """Update or set the size of an angle
-
-        Parameters
-        ----------
-        angle: :class:`str`
-            Angle to target
-        size: :class:`float`
-            Angle size
-        """
-
-    @abstractmethod
     def area(self):
         """ Returns area of shape """
-
-    @abstractmethod
-    def perimeter(self):
-        """ Returns perimeter of shape """
-
-    @abstractmethod
-    def sum_angles(self):
-        """ Returns the sum of the angles in the shape """
 
     def __repr__(self, *, prefix: str = "Shape") -> str:
         sides = [f"{k}={v}" for k, v in self.lengths.items()]
