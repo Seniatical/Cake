@@ -1,6 +1,7 @@
 # A base ABC class for defining geometrical objects
 from abc import ABC, abstractmethod
-from typing import Dict, List, Union
+from collections.abc import Iterable
+from typing import Dict, Generator, List, Tuple, Union
 from string import ascii_lowercase
 from itertools import permutations
 from math import radians        # Convert deg to rad
@@ -36,6 +37,21 @@ class Shape(ABC):
     .. note::
         If any lengths/angles are set to 0,
         Cake will assume that the value is unknown.
+
+    .. note::
+        Defining shapes using points,
+        Cake supports the use of vectors and can export shapes as vectors
+
+        .. rubric:: Defining
+
+        .. code-block::py
+            >>> from cake.geometry import Shape
+            >>> s = Shape((5, 0), (2, 2), (5, 2), (2, 0))
+            
+            # AB -> 5   Y=0
+            # BC -> 2   Y=2
+            # CD -> 5   Y=2
+            # DA -> 2   Y=0
 
     Parameters
     ----------
@@ -82,6 +98,13 @@ class Shape(ABC):
                 markers.append(angle[1])
                 self.angles[angle.upper()] = value
 
+    def _seperate_lengths(self) -> None:
+        for key, value in self.lengths.items():
+            if isinstance(value, Iterable):
+                x, y = value
+                self.lengths[key] = x
+                self.y_centroids[key] = y
+
     def __init__(
         self, *r_lengths,
         lengths: Dict[str, float] = None,
@@ -99,9 +122,11 @@ class Shape(ABC):
 
         _lengths = _chain_items(self.lengths.keys())
         self.lengths = {_lengths[i]: self.lengths[v] for i, v in enumerate(self.lengths.keys())}
+        self.y_centroids = {}
 
         self.sides = len(self.lengths)
         self._clean_angles(convert_to_rad)
+        self._seperate_lengths()
 
     def possible_angles(self) -> List[str]:
         """Returns all possible angle combinations in the shape"""
@@ -173,6 +198,27 @@ class Shape(ABC):
             New length value
         """
         self.lengths[self.get_length(length, name=True)] = float(value)
+
+    def vectorize(self, **y_kwds) -> Generator[Tuple[int, int], None, None]:
+        """ Returns shape as a 2D vector
+
+        Parameters
+        ----------
+        **y_kwds: :class:`float`
+            kwargs for mapping of Y values
+
+            .. code-block::py
+                >>> from cake.geometry import Shape
+                >>> s = Shape(2, 3, 4)
+                >>> s.vectorize(AB=0, BC=5, CA=0)
+                ... [(2, 0), (3, 5), (4, 0)]
+        """
+        y_kwds = {**self.y_centroids, **y_kwds}
+
+        for length in self.lengths:
+            x = self.get_length(length)
+            y = y_kwds.get(length, 0)
+            yield (x, y)  
 
     @abstractmethod
     def set_angle(self, angle: str, size: float) -> float:
