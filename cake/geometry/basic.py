@@ -218,7 +218,7 @@ class Shape(ABC):
         for length in self.lengths:
             x = self.get_length(length)
             y = y_kwds.get(length, 0)
-            yield (x, y)  
+            yield (x, y)
 
     @abstractmethod
     def set_angle(self, angle: str, size: float) -> float:
