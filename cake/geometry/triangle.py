@@ -1,6 +1,6 @@
 from math import acos, cos, radians, sin, tan, degrees
 from typing import Dict, Tuple
-from .base import Polygon
+from .polygon import Polygon
 
 
 class Triangle(Polygon):

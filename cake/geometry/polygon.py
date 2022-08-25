@@ -1,5 +1,5 @@
 from math import radians, sin, cos, tan, pi
-from cake.geometry.basic import Shape
+from .basic import Shape
 from typing import Tuple
 
 
