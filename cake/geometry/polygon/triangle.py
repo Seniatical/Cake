@@ -30,9 +30,8 @@ class Triangle(Polygon):
                  *,
                  angles: Dict[str, float] = {}
                 ) -> None:
-        self.a, self.b, self.c = a, b, c
-
         super().__init__(a, b, c, angles=angles)
+        self.a, self.b, self.c = self.lengths.values()
 
     def __post_init__(self):
         if len(self.lengths) != 3:
