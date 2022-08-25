@@ -21,11 +21,20 @@ class Polygon(Shape):
 
     def set_angle(self, angle: str, size: float, *, convert: bool = True) -> None:
         if not 0 < size < 360:
-            raise ValueError("Angle must be greater then 0, and less then 360")
+            raise ValueError("Angle must be greater then 0 and less then 360")
 
-        angle = self.get_angle(angle, name=True)
-        
-        self.angles[angle] = radians(size) if convert else size
+        suma = self.sum_angles()
+        current = sum(self.get_angle(i) for i in self.angle_maps)
+
+        if current > radians(suma):
+            raise ValueError("Invalid angles")
+        c = self.get_angle(angle)
+        nsum = current - c + size
+
+        if nsum > radians(suma):
+            raise ValueError("Invalid angle")
+
+        self.angles[self.get_angle(angle, name=True)] = radians(size) if convert else size
 
     def area(self) -> float:
         side = self.lengths[list(self.lengths)[0]]
