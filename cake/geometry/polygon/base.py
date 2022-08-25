@@ -18,10 +18,6 @@ class Polygon(Shape):
         if sum(self.angles.values()) > self.sum_angles():
             raise ValueError(f"Sum of angles for this polygon must be less then {self.sum_angles()}")
 
-    def area(self) -> float:
-        side = self.lengths[list(self.lengths)[0]]
-        return (self.sides * side * self.apothem_from_crad()) / 2
-
     def set_angle(self, angle: str, size: float, *, convert: bool = True) -> None:
         if not 0 < size < 360:
             raise ValueError("Angle must be greater then 0, and less then 360")
@@ -29,6 +25,10 @@ class Polygon(Shape):
         angle = self.get_angle(angle, name=True)
         
         self.angles[angle] = radians(size) if convert else size
+
+    def area(self) -> float:
+        side = self.lengths[list(self.lengths)[0]]
+        return (self.sides * side * self.apothem_from_crad()) / 2
 
     def perimeter(self) -> float:
         return sum(self.lengths.values())
