@@ -1,4 +1,4 @@
-from math import cos, sin, tan, degrees
+from math import acos, cos, radians, sin, tan, degrees
 from typing import Dict, Tuple
 from .base import Polygon
 
@@ -36,9 +36,36 @@ class Triangle(Polygon):
     def __post_init__(self):
         if len(self.lengths) != 3:
             raise ValueError("Triangles must have 3 sides")
-        if sum(self.angles.values()) > 180:
+        if sum(self.angles.values()) > radians(180):
             raise TypeError("Angles in triangle must sum to 180")
+
+    def height(self) -> float:
+        """ Returns the height of triangle """
+        c = self.vectorize()
+        return c[1][1]
         
+    def get_opposite_angle(self, length: str) -> str:
+        """Gets angle opposite length
+
+        Parameters
+        ----------
+        length: :class:`str`
+            Name of length
+        """
+        l = self.get_length(length, name=True)
+        return self.length_maps[l]
+
+    def get_opposite_length(self, angle: str) -> str:
+        """Gets length opposite angle
+
+        Parameters
+        ----------
+        angle: :class:`str`
+            Name of angle
+        """
+        a = self.get_angle(angle, name=True)
+        return self.angle_maps[a]
+
     def calc_side_usine(self, pair: Tuple[str, str], angle: str, *, set: bool = False) -> Tuple[str, int]:
         """Calculate the length of a side using sine rule
 
@@ -86,11 +113,48 @@ class Triangle(Polygon):
         if not op_angle:
             raise ValueError(f"Cannot use cosine rule, angle opposite {name} is missing")
         
+        # c = sqrt(a ** 2 + b ** 2 - 2bc * cos C)
         c = ((a ** 2) + (b ** 2) - (2 * a * b) * cos(op_angle)) ** 0.5
 
         if set:
             self.update_length(name, c)
         return name, c
+
+    def calc_angle_ucosine(self, length: str, *, set: bool = False) -> Tuple[str, int]:
+        """Calculates angle opposing a length
+
+        .. note::
+            To use this method, all lengths must be provided
+
+        Parameters
+        ----------
+        length: :class:`str`
+            Length opposite unknown angle
+        set: :class:`bool`
+            Whether to set angle
+        """
+        if not all(i for i in self.lengths.values()):
+            raise ValueError("Missing lengths")
+
+        op = self.get_opposite_angle(length)
+        op_val = self.get_angle(op)
+
+        if op_val:
+            raise ValueError("Angle exists")
+
+        cn = self.get_length(length, name=True)
+        l = self.lengths.copy()
+        c = l.pop(cn)
+        a, b = l.values()
+
+        # cos C = (b ** 2 + c ** 2 - a ** 2) / 2bc
+        cc = ((b ** 2) + (c ** 2) - (a ** 2)) / (2 * b * c)
+        C = acos(radians(cc))
+
+        if set:
+            self.set_angle(op, C)
+
+        return (op, degrees(C))
 
     def median(self) -> float:
         """Returns median of triangle"""
