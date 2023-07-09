@@ -12,6 +12,7 @@ from .add import (
     Add,
 )
 from .divide import Divide
+from .multiply import Multiply, Power
 
 OtherType = Union[OtherType, Operation]
 
@@ -86,10 +87,13 @@ class Expression(BasicExpression):
         if isinstance(self.exp, Divide):
             return Expression(Divide(self.exp.nodes[0] * other, self.exp.nodes[1]))
         
-        nodes = []
-        for node in self.exp.nodes:
-            nodes.append(node * other)
-        return Expression(Add(*nodes))
+        if isinstance(self.exp, Add):
+            nodes = []
+            for node in self.exp.nodes:
+                nodes.append(node * other)
+            return Expression(Add(*nodes))
+
+        return Expression(Multiply(self.exp, other))
 
     __rmul__ = __mul__
     __imul__ = __mul__
