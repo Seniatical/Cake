@@ -31,4 +31,4 @@ from .core.numbers import (
     Integral
 )
 Float = Real
-from .core.unknowns import Unknown, UnknownGroup
+from .core.unknowns import Unknown, UnknownGroup, RaisedUnknown
