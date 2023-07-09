@@ -56,6 +56,11 @@ class Add(Operation):
         nodes = []
 
         for node in self.nodes:
+
+            ## Expression has been passed
+            if hasattr(node, 'exp'):
+                node = node.exp
+
             if isinstance(node, Add):
                 nodes.extend(node.nodes)
             else:
@@ -71,18 +76,22 @@ class Add(Operation):
                 else:
                     node = cake.Number.convert(node)
 
-            for i, v in enumerate(cleaned_nodes):
-                if isinstance(node, cake.Number) and isinstance(v, cake.Number):
-                    ## Numbers are values we can just simply add together
-                    cleaned_nodes[i] = v + node
+            for index, cleaned_node in enumerate(cleaned_nodes):
+                if isinstance(node, cake.Number) and isinstance(cleaned_node, cake.Number):
+                    cleaned_nodes[index] = node + cleaned_nodes[index]
                     break
-                elif isinstance(node, cake.Unknown) and isinstance(v, cake.Unknown):
-                    similar = cake.Unknown.is_similar(node, v)
+
+                if isinstance(node, cake.Unknown) and isinstance(cleaned_node, cake.Unknown):
+                    similar = cake.Unknown.is_similar(node, cleaned_node)
                     if similar:
-                        cleaned_nodes[i] = node + v
-                    else:
-                        cleaned_nodes.append(node)
-                    break
+                        cleaned_nodes[index] = cleaned_nodes[index] + node
+                        break
+
+                if isinstance(node, cake.UnknownGroup) and isinstance(cleaned_node, cake.UnknownGroup):
+                    similar = cake.UnknownGroup.is_similar(node, cleaned_node)
+                    if similar:
+                        cleaned_nodes[index] = cleaned_nodes[index] + node
+
             else:
                 cleaned_nodes.append(node)
 
