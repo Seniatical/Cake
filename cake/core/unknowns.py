@@ -1,12 +1,11 @@
 from __future__ import annotations
-from copy import deepcopy
 
 from cake import (
     IUnknown,
     Expression,
     BasicExpression,
     BasicNode,
-    Add, Divide
+    Add, Divide, Multiply, Power
 )
 from cake.basic import OtherType
 from .numbers import Number, Integral
@@ -19,8 +18,9 @@ ResultType = Union[IUnknown, BasicExpression, U]
 ''' Meths implemented
 __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
-__mul__, __rmul__, __imul__
+__mul__, __rmul__, __imul__, __call__
 __truediv__, __rtruediv__, __itruediv__
+__pow__, __rpow__, __ipow__
 __neg__
 '''
 class Unknown(IUnknown):
@@ -151,6 +151,99 @@ class Unknown(IUnknown):
 
     __itruediv__ = __truediv__
 
+    def __pow__(self, other: OtherType, *modulo) -> ResultType:
+        if modulo:
+            raise ValueError('Cannot apply modulo on an unknown value')
+
+        power = self.power * other
+        coefficient = self.coefficient ** other
+        return Unknown(self.representation, coefficient, power)
+
+    def __rpow__(self, other: OtherType, *modulo) -> ResultType:
+        if modulo:
+            raise ValueError('Cannot apploy modulo on an unknown value')
+        return RaisedUnknown(base=other, power=self)
+
+    __ipow__ = __pow__
+
+# Unknowns as a power
+
+''' Meths implemented
+__add__, __radd__, __iadd__
+__sub__, __rsub__, __isub__
+__mul__, __rmul__, __imul__, __call__
+__truediv__, __rtruediv__, __itruediv__
+__pow__, __rpow__, __ipow__
+__neg__
+'''
+class RaisedUnknown(Generic[U], BasicNode):
+    ''' A raised unknown is where a literal or unknown value is raised to another unknown value,
+    we use this class as it maintains logic within the library.
+    
+    .. note::
+        Most operations which are ran on this object will more then likely return expressions!
+
+    .. code-block:: py
+
+        >>> I = Integral(3)
+        >>> X = Unknown('x')
+        >>> R = I ** X
+        RaisedUnknown(3 ** x)
+        >>> R * 2
+        Expression(Multiply(3 ** x, 2))
+    '''
+    def __init__(self, base: Any, power: Any = 1) -> None:
+        self.base = base
+        self.power = power
+
+    def copy(self) -> RaisedUnknown:
+        return RaisedUnknown(self.base, self.power)
+
+    def __add__(self, other: OtherType) -> Expression:
+        return Expression(Add(self, other))
+
+    __radd__ = __add__
+    __iadd__ = __add__
+
+    def __sub__(self, other: OtherType) -> Expression:
+        return Expression(Add(self.copy(), -other))
+
+    def __rsub__(self, other: OtherType) -> Expression:
+        return Expression(Add(-self, other))
+
+    __isub__ = __sub__
+
+    def __mul__(self, other: OtherType) -> Expression:
+        return Expression(Multiply(self.copy(), other))
+    
+    __rmul__ = __mul__
+    __imul__ = __mul__
+    __call__ = __mul__
+
+    def __neg__(self) -> RaisedUnknown:
+        return RaisedUnknown(-self.base, self.power)
+
+    def __truediv__(self, other: OtherType) -> Expression:
+        return Expression(Divide(self.copy(), other))
+
+    def __rtruediv__(self, other: OtherType) -> Expression:
+        return Expression(Divide(other, self.copy()))
+
+    __itruediv__ = __truediv__
+
+    def __pow__(self, other: OtherType) -> RaisedUnknown:
+        return RaisedUnknown(self.base, self.power * other)
+
+    def __rpow__(self, other: OtherType) -> ResultType:
+        if hasattr(other, 'power'):
+            other = getattr(other, 'copy', lambda: other)()
+            other.power = other.power * self
+            return other
+        
+        return Expression(Power(other, self))
+
+    __ipow__ = __pow__
+
 # Unknown groups
 
 ''' Meths Implemented
@@ -158,6 +251,7 @@ __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
 __mul__, __rmul__, __imul__, __neg__
 __truediv__, __rtruediv__, __itruediv__
+__pow__, __rpow__, __ipow__
 '''
 class UnknownGroup(Generic[U], BasicNode):
     ''' An unknown group is used where multiple unknowns make up a single unknown value,
@@ -389,3 +483,14 @@ class UnknownGroup(Generic[U], BasicNode):
         return UnknownGroup(other / self.coefficient, *self.groups)
 
     __itruediv__ = __truediv__
+
+    def __pow__(self, other: OtherType) -> UnknownGroup:
+        mapping = self.as_mapping()
+        coefficient = self.coefficient ** other
+
+        return UnknownGroup(coefficient, *map(lambda x: x ** other, mapping.values()))
+
+    def __rpow__(self, other: OtherType) -> Expression:
+        return Expression(Power(other, self.copy()))
+
+    __ipow__ = __pow__
