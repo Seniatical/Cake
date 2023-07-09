@@ -7,6 +7,7 @@
 ## Expression(Divide(1, 3)) * 3 -> 1/3 * 3 -> 1
 ##
 from .add import Operation
+from typing import Any
 
 
 class Divide(Operation):
@@ -14,6 +15,14 @@ class Divide(Operation):
     Unlike the rational class which only accepts numerical values for top and bottom values,
     the ``Divide`` op can function using unknowns.
     '''
+
+    @property
+    def numerator(self) -> Any:
+        return self.nodes[0]
+
+    @property
+    def denominator(self) -> Any:
+        return self.nodes[1]
 
     def __str__(self) -> str:
         return ' / '.join(map(str, self.nodes))
