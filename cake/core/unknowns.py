@@ -58,6 +58,9 @@ class Unknown(IUnknown):
 
         return super(Unknown, cls).__new__(cls)
 
+    def copy(self) -> Unknown:
+        return Unknown(self.representation, self.coefficient, self.power)
+
     @staticmethod
     def is_similar(x: Unknown, y: Unknown) -> bool:
         ''' Returns whether 2 unknowns can be merged into a single one,
@@ -74,10 +77,11 @@ class Unknown(IUnknown):
         if isinstance(other, Unknown) and self.is_similar(self, other):
             co = self.coefficient + other.coefficient
             return Unknown(self.representation, co, self.power)
-        elif isinstance(other, BasicExpression):
-            return Expression(Add(self, other.exp))
 
-        return Expression(Add(self, other))
+        elif isinstance(other, BasicExpression):
+            return Expression(Add(self.copy(), other.exp))
+
+        return Expression(Add(self.copy(), other))
 
     __radd__ = __add__
     __iadd__ = __add__
@@ -87,14 +91,14 @@ class Unknown(IUnknown):
             co = self.coefficient - other.coefficient
             return Unknown(self.representation, co, self.power)
 
-        return Expression(Add(deepcopy(self), -other))
+        return Expression(Add(self.copy(), -other))
 
     def __rsub__(self, other: OtherType) -> ResultType:
         if isinstance(other, Unknown) and self.is_similar(self, other):
             co = other.coefficient - self.coefficient
             return Unknown(self.representation, co, self.power)
 
-        return Expression(Add(-self, deepcopy(other)))
+        return Expression(Add(-self, other))
 
     __isub__ = __sub__
 
@@ -119,29 +123,31 @@ class Unknown(IUnknown):
 
     def __truediv__(self, other: OtherType) -> ResultType:
         if isinstance(other, BasicExpression):
-            return Expression(Divide(deepcopy(self), other))
+            return Expression(Divide(self.copy(), other))
+        
         elif isinstance(other, Unknown) and other.representation == self.representation:
             coefficient = self.coefficient / other.coefficient
             power = self.power - other.power
 
             return Unknown(self.representation, coefficient, power)
         elif isinstance(other, UnknownGroup):
-            return Expression(Divide(deepcopy(self), other))
+            return other.__rtruediv__(self)
         
-        return Unknown(self.representation, self.coefficient / other, self.power)
+        return Expression(Divide(self.copy(), other))
 
     def __rtruediv__(self, other: OtherType) -> ResultType:
         if isinstance(other, BasicExpression):
-            return Expression(Divide(other, deepcopy(self)))
+            return Expression(Divide(other, self.copy()))
+
         elif isinstance(other, Unknown) and other.representation == self.representation:
             coefficient = other.coefficient - self.coefficient
             power = other.power - self.power
 
             return Unknown(self.representation, coefficient, power)
         elif isinstance(other, UnknownGroup):
-            return Expression(Divide(other, deepcopy(self)))
+            return other.__truediv__(self)
         
-        return Unknown(self.representation, other / self.coefficient, self.power)
+        return Expression(Divide(other, self.copy()))
 
     __itruediv__ = __truediv__
 
@@ -230,14 +236,17 @@ class UnknownGroup(Generic[U], BasicNode):
                 d[u.representation] *= u
         return d
 
+    def copy(self) -> UnknownGroup:
+        return UnknownGroup(self.coefficient, *self.groups)
+
     ''' Wrapped methods for handling these groups '''
 
     def __add__(self, other: OtherType) -> ResultType:
         if isinstance(other, UnknownGroup):
             if not self.is_similar(self, other):
-                return Expression(Add(deepcopy(self), deepcopy(other)))
+                return Expression(Add(self.copy(), other.copy()))
             return UnknownGroup(self.coefficient + other.coefficient, *self.groups)
-        return Expression(Add(deepcopy(self), deepcopy(other)))
+        return Expression(Add(self.copy(), other))
 
     __radd__ = __add__
     __iadd__ = __add__
@@ -245,16 +254,16 @@ class UnknownGroup(Generic[U], BasicNode):
     def __sub__(self, other: OtherType) -> ResultType:
         if isinstance(other, UnknownGroup):
             if not self.is_similar(self, other):
-                return Expression(Add(deepcopy(self), -other))
+                return Expression(Add(self.copy(), -other))
             return UnknownGroup(self.coefficient - other.coefficient, *self.groups)
-        return Expression(Add(deepcopy(self), -other))
+        return Expression(Add(self.copy(), -other))
 
     def __rsub__(self, other: OtherType) -> ResultType:
         if isinstance(other, UnknownGroup):
             if not self.is_similar(self, other):
-                return Expression(Add(-self, deepcopy(other)))
+                return Expression(Add(-self, other.copy()))
             return UnknownGroup(-self.coefficient + other.coefficient, *self.groups)
-        return Expression(Add(-self, deepcopy(other)))
+        return Expression(Add(-self, other))
 
     __isub__ = __sub__
 
@@ -275,25 +284,15 @@ class UnknownGroup(Generic[U], BasicNode):
 
         elif isinstance(other, Unknown):
             coefficient = self.coefficient * other.coefficient
+            mapping = self.as_mapping()
 
-            res = None
-            e = None
-            for i, g in enumerate(self.groups):
-                if g.representation == other.representation:
-                    res = g * other
+            for node in mapping:
+                if other.representation == node:
+                    mapping[node] = mapping[node] * other
                     break
             else:
-                e = other
-    
-            if res:
-                nodes = [i for i in self.groups]
-                for i, v in enumerate(nodes):
-                    if i.representation == res.represenation:
-                        nodes[i] = v
-                    
-                return UnknownGroup(coefficient, *nodes)
-            groups = self.groups + [e]
-            return UnknownGroup(coefficient, *groups)
+                mapping[other.representation] = other
+            return UnknownGroup(coefficient, *mapping.values())
 
         coefficient = self.coefficient * other
         return UnknownGroup(coefficient, *self.groups)
@@ -331,16 +330,18 @@ class UnknownGroup(Generic[U], BasicNode):
         
         elif isinstance(other, Unknown):
             mapping = self.as_mapping()
+
             if other.representation in mapping:
                 g = mapping[other.representation] / other
                 mapping[other.representation] = g
+
                 coefficient = self.coefficient / other.coefficient
                 return UnknownGroup(coefficient, *mapping.values())
             
-            return Expression(Divide(deepcopy(self), deepcopy(other)))
+            return Expression(Divide(self.copy(), other))
 
         elif isinstance(other, BasicExpression):
-            return Expression(Divide(deepcopy(self), deepcopy(other)))
+            return Expression(Divide(self.copy(), other))
 
         return UnknownGroup(self.coefficient / other, *self.groups)
 
@@ -370,16 +371,20 @@ class UnknownGroup(Generic[U], BasicNode):
         
         elif isinstance(other, Unknown):
             mapping = self.as_mapping()
+
             if other.representation in mapping:
-                g = other / mapping[self.representation]
-                mapping[self.representation] = g
-                coefficient = other.coefficient / self.coefficient
-                return UnknownGroup(coefficient, *mapping.values())
+                g = other / mapping[other.representation]
+                
+                if isinstance(g, Number):
+                    mapping.pop(other.representation)
+                bottom = UnknownGroup(self.coefficient, *mapping.values())
+
+                return Expression(Divide(g, bottom))
             
-            return Expression(Divide(deepcopy(other), deepcopy(self)))
+            return Expression(Divide(other, self.copy()))
 
         elif isinstance(other, BasicExpression):
-            return Expression(Divide(deepcopy(other), deepcopy(self)))
+            return Expression(Divide(other, self.copy()))
 
         return UnknownGroup(other / self.coefficient, *self.groups)
 
