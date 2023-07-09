@@ -179,19 +179,30 @@ class UnknownGroup(Generic[U], BasicNode):
         >>> g + y
         Expression(xy + y)
     '''
+    def __new__(cls, coefficient: Any, *unknowns) -> None:
+        if coefficient == 0 or len(unknowns) == 0:
+            return Integral(0)
+        elif len(unknowns) == 1:
+            return unknowns[0]
+        return super(UnknownGroup, cls).__new__(cls)
+
     def __init__(self, coefficient: Any, *unknowns) -> None:
         self.coefficient = coefficient
         self.power = None
-        self.groups = [deepcopy(u) for u in unknowns]
+        self.groups = []
 
-        for g in self.groups:
-            g.coefficient = 1
+        for group in unknowns:
+            if isinstance(group, Unknown):
+                group = Unknown(group.representation, 1, group.power)
+                self.groups.append(group)
+            else:
+                self.coefficient *= group
 
     def __repr__(self) -> str:
         return f'UnknownGroup({self.__str__()})'
 
     def __str__(self) -> str:
-        return str(self.coefficient) + ''.join(map(lambda x: f'{x.representation}{f"**{x.power}" if x.power != 1 else ""}', self.groups))
+        return (str(self.coefficient) if self.coefficient != 1 else '') + ''.join(map(lambda x: f'{x.representation}{f"**{x.power}" if x.power != 1 else ""}', self.groups))
 
 
     @staticmethod
@@ -215,6 +226,9 @@ class UnknownGroup(Generic[U], BasicNode):
         for u in self.groups:
             if u.representation not in d:
                 d[u.representation] = u
+            else:
+                d[u.representation] *= u
+        return d
 
     ''' Wrapped methods for handling these groups '''
 
