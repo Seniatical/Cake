@@ -15,5 +15,8 @@ class Divide(Operation):
     the ``Divide`` op can function using unknowns.
     '''
 
+    def __str__(self) -> str:
+        return ' / '.join(map(str, self.nodes))
+
     def flatten(self) -> None:
         assert len(self.nodes) == 2, 'Invalid divide op given, must only contain 2 nodes'
