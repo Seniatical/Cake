@@ -21,6 +21,7 @@ from .expressions.core import (
 
 from .expressions.add import ExpressionNode, BasicNode, Add
 from .expressions.divide import Divide
+from .expressions.multiply import Multiply, Power
 
 from .core.numbers import (
     Number,
