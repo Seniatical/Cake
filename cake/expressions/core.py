@@ -91,6 +91,10 @@ class Expression(BasicExpression):
             nodes.append(node * other)
         return Expression(Add(*nodes))
 
+    __rmul__ = __mul__
+    __imul__ = __mul__
+    __call__ = __mul__
+
     ''' END NUMERIC METHODS '''
 
     ''' UNARY OPS '''
