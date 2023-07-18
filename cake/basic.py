@@ -98,7 +98,16 @@ class Unknown(Generic[U], BasicNode):
         self.__repr = str(new)
 
     @classmethod
-    def gen_many(cls, *symbols) -> List[Unknown]:
+    def many(cls, *symbols) -> List[Unknown]:
+        ''' Returns a list of unknowns from the input given
+
+        .. code-block:: py
+
+            >>> Unknown.many('x', 'y')
+            [Unknown('x'), Unknown('y')]
+            >>> Unknown.many(('x', 5), ('y', 1, 2), 'z')
+            [Unknown('x', coefficient=5), Unknown('y', coefficient=1, power=2), Unknown('z')]
+        '''
         return [cls(i) if isinstance(i, str) else cls(*i) for i in symbols]
 
 

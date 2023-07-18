@@ -5,4 +5,13 @@
 # Cake
 
 ## Overview
-Cake, a math library for python.
+(WIP) Cake, an algebraic math library for python.
+
+## Basic Usage
+```py
+from cake import *
+
+x, y = Unknown.many('x', 'y')
+expr = x + y
+print(expr.solve(x=5, y=3))
+# 8

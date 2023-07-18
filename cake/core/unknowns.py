@@ -100,13 +100,13 @@ class Unknown(IUnknown, BasicUnknown):
             >>> x = Unknown('x')
             >>> x > 9
             Comparity(left=x, right=9, symbol='>')
-            >>> (x > 9).fits(10)
-            False
-            >>> (x > 9).fits(5)
+            >>> (x > 9).fits(x=10)
             True
-            >>> (5 < x < 10).fits(10)
+            >>> (x > 9).fits(x=5)
             False
-            >>> (5 < x < 10).fits(7)
+            >>> (5 < x < 10).fits(x=10)
+            False
+            >>> (5 < x < 10).fits(x=7)
             True
 
     .. tip::
@@ -420,6 +420,13 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
 
     def copy(self) -> UnknownGroup:
         return UnknownGroup(self.coefficient, *self.groups)
+
+    def solve(self, **values) -> ResultType:
+        result = 0
+        for node in self.groups:
+            if node.representation in values:
+                result += values[node.representation] ** node.power
+        return Number.convert(result * self.coefficient)
 
     ''' Wrapped methods for handling these groups '''
 
