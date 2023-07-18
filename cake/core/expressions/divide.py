@@ -29,3 +29,13 @@ class Divide(Operation):
 
     def flatten(self) -> None:
         assert len(self.nodes) == 2, 'Invalid divide op given, must only contain 2 nodes'
+
+
+class FloorDiv(Divide):
+    def __str__(self) -> str:
+        return ' // '.join(map(str, self.nodes))
+
+
+class Modulo(Divide):
+    def __str__(self) -> str:
+        return ' % '.join(map(str, self.nodes))
