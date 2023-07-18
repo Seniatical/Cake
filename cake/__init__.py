@@ -15,13 +15,14 @@ from .basic import (
 )
 IFloat = IReal
 
-from .expressions.core import (
+from .core.comparity import ComparitySymbol, Comparity
+from .core.expressions.core import (
     Expression
 )
 
-from .expressions.add import ExpressionNode, BasicNode, Add
-from .expressions.divide import Divide
-from .expressions.multiply import Multiply, Power
+from .core.expressions.add import ExpressionNode, BasicNode, Add
+from .core.expressions.divide import Divide, FloorDiv, Modulo
+from .core.expressions.multiply import Multiply, Power
 
 from .core.numbers import (
     Number,
