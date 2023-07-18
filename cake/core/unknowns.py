@@ -1,11 +1,14 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 
 from cake import (
     IUnknown,
     Expression,
     BasicExpression,
     BasicNode,
-    Add, Divide, Multiply, Power
+    Comparity, ComparitySymbol,
+    Add, Divide, Multiply, Power, FloorDiv,
+    Modulo
 )
 from cake.basic import OtherType
 from .numbers import Number, Integral
@@ -16,6 +19,68 @@ ResultType = Union[IUnknown, BasicExpression, U]
 
 
 ''' Meths implemented
+__pos__
+__floordiv__, __rfloordiv__, __ifloordiv__
+__mod__, __rmod__, __imod__,
+__eq__, __ne__, __lt__, __le__, __gt__, __ge__
+'''
+class BasicUnknown(ABC):
+    ''' Holds methods which will be the same for every type of unknown'''
+
+    @abstractmethod
+    def copy(self) -> U:
+        raise NotImplemented
+
+    def __pos__(self) -> U:
+        return self.copy()
+
+    def __abs__(self) -> U:
+        if hasattr(self, 'coefficient'):
+            if self.coefficient > 0:
+                return self.copy()
+            copy = self.copy()
+            copy.coefficient = -copy.coefficient
+            return copy
+        return self
+
+    def __floordiv__(self, other) -> Expression:
+        return Expression(FloorDiv(self.copy(), other))
+
+    def __rfloordiv__(self, other) -> Expression:
+        return Expression(FloorDiv(other, self.copy()))
+
+    __ifloordiv__ = __floordiv__
+
+    def __mod__(self, other) -> Expression:
+        return Expression(Modulo(self.copy(), other))
+
+    def __rmod__(self, other) -> Expression:
+        return Expression(Modulo(other, self.copy()))
+
+    __imod__ = __mod__
+
+    ''' Comparitive methods '''
+
+    def __eq__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.EQUAL_TO)
+
+    def __ne__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.NOT_EQUAL_TO)
+
+    def __lt__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.LESS_THAN)
+
+    def __le__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.LESS_OR_EQUAL_TO)
+
+    def __gt__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.GREATER_THAN)
+
+    def __ge__(self, other: OtherType) -> Comparity:
+        return Comparity(self.copy(), other, ComparitySymbol.GREATER_OR_EQUAL_TO)
+
+
+''' Meths implemented
 __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
 __mul__, __rmul__, __imul__, __call__
@@ -23,9 +88,26 @@ __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 __neg__
 '''
-class Unknown(IUnknown):
+class Unknown(IUnknown, BasicUnknown):
     ''' An object which represents an unknown number/value,
     this class be integrated with other components within the cake library.
+
+    .. note::
+        Using comparity operators such as `==` will not return a boolean value.
+
+        .. code-block:: py
+
+            >>> x = Unknown('x')
+            >>> x > 9
+            Comparity(left=x, right=9, symbol='>')
+            >>> (x > 9).fits(10)
+            False
+            >>> (x > 9).fits(5)
+            True
+            >>> (5 < x < 10).fits(10)
+            False
+            >>> (5 < x < 10).fits(7)
+            True
 
     .. tip::
         Using unknowns in trig
@@ -72,6 +154,9 @@ class Unknown(IUnknown):
         elif not (x.power == y.power):
             return False
         return True
+
+    def solve(self, value: OtherType) -> ResultType:
+        return (self.coefficient * value) ** self.power
 
     def __add__(self, other: OtherType) -> ResultType:
         if isinstance(other, Unknown) and self.is_similar(self, other):
@@ -161,7 +246,7 @@ class Unknown(IUnknown):
 
     def __rpow__(self, other: OtherType, *modulo) -> ResultType:
         if modulo:
-            raise ValueError('Cannot apploy modulo on an unknown value')
+            raise ValueError('Cannot apply modulo on an unknown value')
         return RaisedUnknown(base=other, power=self)
 
     __ipow__ = __pow__
@@ -176,7 +261,7 @@ __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 __neg__
 '''
-class RaisedUnknown(Generic[U], BasicNode):
+class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
     ''' A raised unknown is where a literal or unknown value is raised to another unknown value,
     we use this class as it maintains logic within the library.
     
@@ -198,6 +283,9 @@ class RaisedUnknown(Generic[U], BasicNode):
 
     def copy(self) -> RaisedUnknown:
         return RaisedUnknown(self.base, self.power)
+
+    def solve(self, other: OtherType) -> ResultType:
+        return self.base ** other
 
     def __add__(self, other: OtherType) -> Expression:
         return Expression(Add(self, other))
@@ -253,7 +341,7 @@ __mul__, __rmul__, __imul__, __neg__
 __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 '''
-class UnknownGroup(Generic[U], BasicNode):
+class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
     ''' An unknown group is used where multiple unknowns make up a single unknown value,
     So, ``5x`` is an Unknown whereas ``5x * y`` would be an UnknownGroup as theres 2 values.
 
