@@ -237,17 +237,18 @@ class Unknown(IUnknown, BasicUnknown):
     __itruediv__ = __truediv__
 
     def __pow__(self, other: OtherType, *modulo) -> ResultType:
-        if modulo:
-            raise ValueError('Cannot apply modulo on an unknown value')
-
         power = self.power * other
         coefficient = self.coefficient ** other
-        return Unknown(self.representation, coefficient, power)
+        r = Unknown(self.representation, coefficient, power)
+
+        if modulo:
+            return Expression(Modulo(r, modulo[0]))
+        return r
 
     def __rpow__(self, other: OtherType, *modulo) -> ResultType:
         if modulo:
-            raise ValueError('Cannot apply modulo on an unknown value')
-        return RaisedUnknown(base=other, power=self)
+            return RaisedUnknown(base=other, power=self.copy()).__mod__(modulo[0])
+        return RaisedUnknown(base=other, power=self.copy())
 
     __ipow__ = __pow__
 
@@ -319,15 +320,19 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
 
     __itruediv__ = __truediv__
 
-    def __pow__(self, other: OtherType) -> RaisedUnknown:
+    def __pow__(self, other: OtherType, *modulo) -> RaisedUnknown:
+        if modulo:
+            return Expression(Modulo(RaisedUnknown(self.base, self.power * other), modulo[0]))
         return RaisedUnknown(self.base, self.power * other)
 
-    def __rpow__(self, other: OtherType) -> ResultType:
+    def __rpow__(self, other: OtherType, *modulo) -> ResultType:
         if hasattr(other, 'power'):
             other = getattr(other, 'copy', lambda: other)()
             other.power = other.power * self
             return other
         
+        if modulo:
+            return Expression(Modulo(Power(other, self), modulo[0]))
         return Expression(Power(other, self))
 
     __ipow__ = __pow__
@@ -579,13 +584,18 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
 
     __itruediv__ = __truediv__
 
-    def __pow__(self, other: OtherType) -> UnknownGroup:
+    def __pow__(self, other: OtherType, *modulo) -> UnknownGroup:
         mapping = self.as_mapping()
         coefficient = self.coefficient ** other
 
-        return UnknownGroup(coefficient, *map(lambda x: x ** other, mapping.values()))
+        result = UnknownGroup(coefficient, *map(lambda x: x ** other, mapping.values()))
+        if modulo:
+            return result % modulo[0]
+        return result
 
-    def __rpow__(self, other: OtherType) -> Expression:
+    def __rpow__(self, other: OtherType, *modulo) -> Expression:
+        if modulo:
+            return Expression(Modulo(Power(other, self.copy()), modulo[0]))
         return Expression(Power(other, self.copy()))
 
     __ipow__ = __pow__
