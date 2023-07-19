@@ -14,6 +14,8 @@ from cake.basic import OtherType
 from .numbers import Number, Integral
 from typing import Any, Generic, TypeVar, Union
 
+from .expressions.binaries import *
+
 U = TypeVar('U', bound=IUnknown)
 ResultType = Union[IUnknown, BasicExpression, U]
 
@@ -22,7 +24,22 @@ ResultType = Union[IUnknown, BasicExpression, U]
 __pos__
 __floordiv__, __rfloordiv__, __ifloordiv__
 __mod__, __rmod__, __imod__,
+__lshift__, __rlshift__, __ilshift__
+__rshift__, __rrshift__, __irshift__
+__and__, __rand__, __iand__
+__xor__, __rxor__, __ixor__
+__or__, __ror__, __ior__
 __eq__, __ne__, __lt__, __le__, __gt__, __ge__
+
+Unimplementable Methods
+- __divmod__ : 
+    needs to return a tuple, cannot really do
+- __int__, __complex__, __float__, __bool__ : 
+    can't convert with no existing value
+- __round__, __trunc__, __floor__, __ceil__ :
+    same reason as above
+- __invert__ : 
+    Dont see the point in it
 '''
 class BasicUnknown(ABC):
     ''' Holds methods which will be the same for every type of unknown'''
@@ -58,6 +75,48 @@ class BasicUnknown(ABC):
         return Expression(Modulo(other, self.copy()))
 
     __imod__ = __mod__
+
+    ''' Misc '''
+
+    def __lshift__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(self.copy(), other))
+
+    def __rlshift__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(other, self.copy()))
+
+    __ilshift__ = __lshift__
+
+    def __rshift__(self, other: OtherType) -> Expression:
+        return Expression(RightShift(self.copy(), other))
+
+    def __rrshift__(self, other: OtherType) -> Expression:
+        return Expression(RightShift(other, self.copy()))
+
+    __irshift__ = __rshift__
+
+    def __and__(self, other: OtherType) -> Expression:
+        return Expression(And(self.copy(), other))
+
+    def __rand__(self, other: OtherType) -> Expression:
+        return Expression(And(other, self.copy()))
+
+    __iand__ = __and__
+
+    def __xor__(self, other: OtherType) -> Expression:
+        return Expression(Xor(self.copy(), other))
+
+    def __rxor__(self, other: OtherType) -> Expression:
+        return Expression(Xor(other, self.copy()))
+
+    __ixor__ = __xor__
+
+    def __or__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(self.copy(), other))
+
+    def __ror__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(other, self.copy()))
+
+    __ior__ = __or__
 
     ''' Comparitive methods '''
 
@@ -287,6 +346,12 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
 
     def solve(self, other: OtherType) -> ResultType:
         return self.base ** other
+
+    def __repr__(self) -> str:
+        return f'RaisedUnknown(base={self.base}, power={self.power})'
+
+    def __str__(self) -> str:
+        return f'{self.base} ** {self.power}'
 
     def __add__(self, other: OtherType) -> Expression:
         return Expression(Add(self, other))
