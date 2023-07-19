@@ -96,7 +96,19 @@ class Comparity(Generic[L, R]):
         return r
 
     def fits(self, **values) -> bool:
-        ''' Checks whether given values fit inside of the comparitive expression 
+        ''' Checks whether given values fit inside of the comparitive expression,
+        for chained expressions each pair is worked out, 
+        any pairs returning Comparity are assumed False.
+
+        .. code-block:: py
+
+            >>> c = x > 5
+            >>> c
+            Comparity(x > 5)
+            >>> c.fits(x=6)
+            True
+            >>> c.fits(x=1)
+            False
         '''
         nodes = self._gather()
         pairs = tuple(pairwise(nodes))
