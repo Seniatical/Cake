@@ -215,11 +215,14 @@ class Unknown(IUnknown, BasicUnknown):
         return True
 
     def solve(self, value: OtherType = None, **_v) -> ResultType:
-        value = _v.pop(self.representation, None) or value or ...
-        if value == Ellipsis:
+        v = value
+        if v is None:
+            v = _v.pop(self.representation, None)
+
+        if v is None:
             raise ValueError('No value provided')
 
-        return (self.coefficient * value) ** self.power
+        return (self.coefficient * v) ** self.power
 
     def __add__(self, other: OtherType) -> ResultType:
         if isinstance(other, Unknown) and self.is_similar(self, other):
