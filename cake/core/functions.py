@@ -153,3 +153,40 @@ class TanH(Function):
         if opts.get('prehandle'):
             v = self.prehandler(v)
         return cake.Real(tanh(v))
+
+
+class Truncate(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(trunc(v))
+
+
+class Ceil(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(ceil(v))
+
+
+class Floor(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(floor(v))
+
+
+class Sqrt(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(sqrt(v))
+
