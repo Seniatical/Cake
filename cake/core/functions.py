@@ -108,3 +108,48 @@ class Sin(Function):
         if opts.get('prehandle'):
             v = self.prehandler(v)
         return cake.Real(sin(v))
+
+
+class Cos(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(cos(v))
+
+
+class Tan(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(tan(v))
+
+
+class SinH(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(sinh(v))
+
+
+class CosH(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(cosh(v))
+
+
+class TanH(Function):
+    def _handler(self, v, **opts) -> Any:
+        if opts.get('rad'):
+            v = cake.to_radians(v)
+        if opts.get('prehandle'):
+            v = self.prehandler(v)
+        return cake.Real(tanh(v))
