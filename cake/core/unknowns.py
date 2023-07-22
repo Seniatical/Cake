@@ -12,7 +12,7 @@ from cake import (
 )
 from cake.basic import OtherType
 from .numbers import Number, Integral
-from typing import Any, Generic, TypeVar, Union
+from typing import Any, Dict, Generic, TypeVar, Union
 
 from .expressions.binaries import *
 
@@ -214,7 +214,11 @@ class Unknown(IUnknown, BasicUnknown):
             return False
         return True
 
-    def solve(self, value: OtherType) -> ResultType:
+    def solve(self, value: OtherType = None, **_v) -> ResultType:
+        value = _v.pop(self.representation, None) or value or ...
+        if value == Ellipsis:
+            raise ValueError('No value provided')
+
         return (self.coefficient * value) ** self.power
 
     def __add__(self, other: OtherType) -> ResultType:
@@ -344,8 +348,20 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
     def copy(self) -> RaisedUnknown:
         return RaisedUnknown(self.base, self.power)
 
-    def solve(self, other: OtherType) -> ResultType:
-        return self.base ** other
+
+    def solve(self, **kwds) -> ResultType:
+        if base and hasattr(self.base, 'solve'):
+            base = self.base.solve(**kwds)
+        else:
+            base = self.base
+
+        if power and hasattr(self.power, 'solve'):
+            power = self.power.solve(**kwds)
+        else:
+            power = self.power
+
+        return base ** power
+
 
     def __repr__(self) -> str:
         return f'RaisedUnknown(base={self.base}, power={self.power})'
