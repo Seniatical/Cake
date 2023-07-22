@@ -353,12 +353,12 @@ class RaisedVariable(Generic[U], BasicNode, BasicVariable):
 
 
     def solve(self, **kwds) -> ResultType:
-        if base and hasattr(self.base, 'solve'):
+        if hasattr(self.base, 'solve'):
             base = self.base.solve(**kwds)
         else:
             base = self.base
 
-        if power and hasattr(self.power, 'solve'):
+        if hasattr(self.power, 'solve'):
             power = self.power.solve(**kwds)
         else:
             power = self.power
