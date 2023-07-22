@@ -39,8 +39,8 @@ class Number(BasicNode, numbers.Number):
         self.__value = new
 
 
-class Unknown(Generic[U], BasicNode):
-    ''' Represents an unknown value, 
+class Variable(Generic[U], BasicNode):
+    ''' Represents an Variable value, 
         this can be used inplace of any integer throughout the cake library.
         
         ..note::
@@ -51,7 +51,7 @@ class Unknown(Generic[U], BasicNode):
 
         ..code-block:: py
 
-            >>> a = Unknown('a')
+            >>> a = Variable('a')
             >>> expr = (a + 5) / 2
             >>> expr.solve() == expr
             True
@@ -72,7 +72,7 @@ class Unknown(Generic[U], BasicNode):
             >>> equation -= 5
             # a = 15
             >>> equation.result(as_unknown=True)
-            Unknown('a', default_value=15)
+            Variable('a', default_value=15)
     '''
     representation: str
     coefficient: Any
@@ -88,7 +88,7 @@ class Unknown(Generic[U], BasicNode):
         return f'{self.coefficient if self.coefficient != 1 else ""}{self.representation}{f"**{self.power}" if self.power != 1 else ""}'
 
     def __repr__(self) -> str:
-        return f'Unknown(\'{self.representation}\', coefficient={self.coefficient}, power={self.power})'
+        return f'Variable(\'{self.representation}\', coefficient={self.coefficient}, power={self.power})'
 
     @property
     def representation(self) -> str:
@@ -99,23 +99,23 @@ class Unknown(Generic[U], BasicNode):
         self.__repr = str(new)
 
     @classmethod
-    def many(cls, *symbols) -> List[Unknown]:
-        ''' Returns a list of unknowns from the input given
+    def many(cls, *symbols) -> List[Variable]:
+        ''' Returns a list of Variables from the input given
 
         .. code-block:: py
 
-            >>> Unknown.many('x', 'y')
-            [Unknown('x'), Unknown('y')]
-            >>> Unknown.many(('x', 5), ('y', 1, 2), 'z')
-            [Unknown('x', coefficient=5), Unknown('y', coefficient=1, power=2), Unknown('z')]
+            >>> Variable.many('x', 'y')
+            [Variable('x'), Variable('y')]
+            >>> Variable.many(('x', 5), ('y', 1, 2), 'z')
+            [Variable('x', coefficient=5), Variable('y', coefficient=1, power=2), Variable('z')]
         '''
         return [cls(i) if isinstance(i, str) else cls(*i) for i in symbols]
 
 
 class Function(Generic[F], BasicNode):
     ''' Base class for creating functions,
-    behaves similarly to an unknown in the sense the value of the function is not calcuated until called.
-    This feature allows it to intake unknowns as values.
+    behaves similarly to an Variable in the sense the value of the function is not calcuated until called.
+    This feature allows it to intake Variables as values.
     '''
 
     coefficient: Any
@@ -180,10 +180,10 @@ class Function(Generic[F], BasicNode):
         >>> F.evaluate(x=3)
         Function(3 + 3)         ## Result is returned here
         >>> F.evaluate()
-        Function(3 + x)         ## Function is returned as x is still unknown
+        Function(3 + x)         ## Function is returned as x is still Variable
         '''
 
-OtherType = Union[Number, Unknown, BasicExpression, numbers.Number, Function]
+OtherType = Union[Number, Variable, BasicExpression, numbers.Number, Function]
 
 
 class Complex(Number):

@@ -13,7 +13,7 @@ from typing import Any
 class Divide(Operation):
     ''' The divide operation mimicks a fractional element.
     Unlike the rational class which only accepts numerical values for top and bottom values,
-    the ``Divide`` op can function using unknowns.
+    the ``Divide`` op can function using Variables.
     '''
 
     @property

@@ -1,13 +1,13 @@
 '''
 Functions in the cake library are used to imitate the default Sin, Cos and Tan mathmatical functions,
-except they are able to operate using core components in the cake library such as ``Unknowns``.
+except they are able to operate using core components in the cake library such as ``Variables``.
 
->>> from cake import Sin, Unknown, Expression, Add
->>> Sin(Unknown('x'))
+>>> from cake import Sin, Variable, Expression, Add
+>>> Sin(Variable('x'))
 Sin(x)
 >>> Sin(Expression(Add('x', 3)))
 Sin(x + 3)
->>> S = Sin(Unknown('x'))
+>>> S = Sin(Variable('x'))
 >>> Expr = Expression(Add('x', 3))
 >>> Expr += S
 >>> Expr
@@ -75,7 +75,7 @@ class Function(cake.IFunction, ABC):
             if not hasattr(e, 'value'):
                 return self.__class__(e)
             return self._handler(e, rad=to_rad)
-        elif isinstance(self.parameter, cake.BasicUnknown):
+        elif isinstance(self.parameter, cake.BasicVariable):
             return self._handler(self.parameter.solve(**kwds), rad=to_rad)
 
         value = getattr(self.parameter, 'value', self.parameter)

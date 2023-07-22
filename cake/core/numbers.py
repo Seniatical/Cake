@@ -5,7 +5,7 @@ from cake import (
     IReal,
     IRational,
     IIntegeral,
-    IUnknown
+    IVariable
 )
 import numbers
 from math import trunc, floor, ceil
@@ -41,16 +41,16 @@ class Number(INumber):
 
     .. code-block:: py
 
-        from cake import Number, Unknown
+        from cake import Number, Variable
         
         x = 5
         x += Number(10)
         ## x is now an Integral not a Number
 
-        a = Unknown('a')
+        a = Variable('a')
         x = x + a
         ## x is now an Expression
-        ## x = Expr(Integral(15), Unknown('a'))
+        ## x = Expr(Integral(15), Variable('a'))
         ## which can be represented as f(x) = 15 + a
     '''
     _type = None

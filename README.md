@@ -11,7 +11,7 @@
 ```py
 from cake import *
 
-x, y = Unknown.many('x', 'y')
+x, y = Variable.many('x', 'y')
 expr = x + y
 print(expr.solve(x=5, y=3))
 # 8

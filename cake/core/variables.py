@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from cake import (
-    IUnknown,
+    IVariable,
     Expression,
     BasicExpression,
     BasicNode,
@@ -16,8 +16,8 @@ from typing import Any, Dict, Generic, TypeVar, Union
 
 from .expressions.binaries import *
 
-U = TypeVar('U', bound=IUnknown)
-ResultType = Union[IUnknown, BasicExpression, U]
+U = TypeVar('U', bound=IVariable)
+ResultType = Union[IVariable, BasicExpression, U]
 
 
 ''' Meths implemented
@@ -41,8 +41,8 @@ Unimplementable Methods
 - __invert__ : 
     Dont see the point in it
 '''
-class BasicUnknown(ABC):
-    ''' Holds methods which will be the same for every type of unknown'''
+class BasicVariable(ABC):
+    ''' Holds methods which will be the same for every type of Variable'''
 
     @abstractmethod
     def copy(self) -> U:
@@ -147,8 +147,8 @@ __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 __neg__
 '''
-class Unknown(IUnknown, BasicUnknown):
-    ''' An object which represents an unknown number/value,
+class Variable(IVariable, BasicVariable):
+    ''' An object which represents an Variable number/value,
     this class be integrated with other components within the cake library.
 
     .. note::
@@ -156,7 +156,7 @@ class Unknown(IUnknown, BasicUnknown):
 
         .. code-block:: py
 
-            >>> x = Unknown('x')
+            >>> x = Variable('x')
             >>> x > 9
             Comparity(left=x, right=9, symbol='>')
             >>> (x > 9).fits(x=10)
@@ -169,11 +169,11 @@ class Unknown(IUnknown, BasicUnknown):
             True
 
     .. tip::
-        Using unknowns in trig
+        Using Variables in trig
 
         .. code-block:: py
 
-            from cake import Sin, Unknown
+            from cake import Sin, Variable
             from cake.shapes import Triangle
 
             t = Triangle.rand_right_angle()
@@ -183,7 +183,7 @@ class Unknown(IUnknown, BasicUnknown):
             # Angle BAC = 30 and the opposite side is BC
             # Lets work out ACB
             left = Sin(30) / 5
-            right = Sin(Unknown('x')) / 12
+            right = Sin(Variable('x')) / 12
             eq = left.to_equation(right=right)
 
             eq.multiply(12)
@@ -191,22 +191,22 @@ class Unknown(IUnknown, BasicUnknown):
             x = ArcSin(eq.left)
             print(x.compute())
     '''
-    def __new__(cls, repr: str, coefficient: Any = 1, power: Any = 1) -> Union[Number, Unknown]:
+    def __new__(cls, repr: str, coefficient: Any = 1, power: Any = 1) -> Union[Number, Variable]:
         if power == 0:
             return Integral(1) * coefficient
         elif coefficient == 0:
             return Integral(0)
 
-        return super(Unknown, cls).__new__(cls)
+        return super(Variable, cls).__new__(cls)
 
-    def copy(self) -> Unknown:
-        return Unknown(self.representation, self.coefficient, self.power)
+    def copy(self) -> Variable:
+        return Variable(self.representation, self.coefficient, self.power)
 
     @staticmethod
-    def is_similar(x: Unknown, y: Unknown) -> bool:
-        ''' Returns whether 2 unknowns can be merged into a single one,
+    def is_similar(x: Variable, y: Variable) -> bool:
+        ''' Returns whether 2 Variables can be merged into a single one,
 
-        so ``Unknown.is_similar(3x, 4x)`` is True but ``Unknown.is_similar(4y, 3x)`` is False.
+        so ``Variable.is_similar(3x, 4x)`` is True but ``Variable.is_similar(4y, 3x)`` is False.
         '''
         if not (x.representation == y.representation):
             return False
@@ -225,9 +225,9 @@ class Unknown(IUnknown, BasicUnknown):
         return (self.coefficient * v) ** self.power
 
     def __add__(self, other: OtherType) -> ResultType:
-        if isinstance(other, Unknown) and self.is_similar(self, other):
+        if isinstance(other, Variable) and self.is_similar(self, other):
             co = self.coefficient + other.coefficient
-            return Unknown(self.representation, co, self.power)
+            return Variable(self.representation, co, self.power)
 
         elif isinstance(other, BasicExpression):
             return Expression(Add(self.copy(), other.exp))
@@ -238,16 +238,16 @@ class Unknown(IUnknown, BasicUnknown):
     __iadd__ = __add__
 
     def __sub__(self, other: OtherType) -> ResultType:
-        if isinstance(other, Unknown) and self.is_similar(self, other):
+        if isinstance(other, Variable) and self.is_similar(self, other):
             co = self.coefficient - other.coefficient
-            return Unknown(self.representation, co, self.power)
+            return Variable(self.representation, co, self.power)
 
         return Expression(Add(self.copy(), -other))
 
     def __rsub__(self, other: OtherType) -> ResultType:
-        if isinstance(other, Unknown) and self.is_similar(self, other):
+        if isinstance(other, Variable) and self.is_similar(self, other):
             co = other.coefficient - self.coefficient
-            return Unknown(self.representation, co, self.power)
+            return Variable(self.representation, co, self.power)
 
         return Expression(Add(-self, other))
 
@@ -256,16 +256,16 @@ class Unknown(IUnknown, BasicUnknown):
     def __mul__(self, other: OtherType) -> ResultType:
         if isinstance(other, BasicExpression):
             return other * self
-        elif isinstance(other, Unknown):
+        elif isinstance(other, Variable):
             if self.representation == other.representation:
                 co = self.coefficient * other.coefficient
                 po = self.power + other.power
-                return Unknown(self.representation, co, po)
+                return Variable(self.representation, co, po)
             
             co_ef = self.coefficient * other.coefficient
-            return UnknownGroup(co_ef, self, other)
+            return VariableGroup(co_ef, self, other)
         else:
-            return Unknown(self.representation, self.coefficient * other, self.power)
+            return Variable(self.representation, self.coefficient * other, self.power)
 
     __rmul__ = __mul__
     __imul__ = __mul__
@@ -276,12 +276,12 @@ class Unknown(IUnknown, BasicUnknown):
         if isinstance(other, BasicExpression):
             return Expression(Divide(self.copy(), other))
         
-        elif isinstance(other, Unknown) and other.representation == self.representation:
+        elif isinstance(other, Variable) and other.representation == self.representation:
             coefficient = self.coefficient / other.coefficient
             power = self.power - other.power
 
-            return Unknown(self.representation, coefficient, power)
-        elif isinstance(other, UnknownGroup):
+            return Variable(self.representation, coefficient, power)
+        elif isinstance(other, VariableGroup):
             return other.__rtruediv__(self)
         
         return Expression(Divide(self.copy(), other))
@@ -290,12 +290,12 @@ class Unknown(IUnknown, BasicUnknown):
         if isinstance(other, BasicExpression):
             return Expression(Divide(other, self.copy()))
 
-        elif isinstance(other, Unknown) and other.representation == self.representation:
+        elif isinstance(other, Variable) and other.representation == self.representation:
             coefficient = other.coefficient - self.coefficient
             power = other.power - self.power
 
-            return Unknown(self.representation, coefficient, power)
-        elif isinstance(other, UnknownGroup):
+            return Variable(self.representation, coefficient, power)
+        elif isinstance(other, VariableGroup):
             return other.__truediv__(self)
         
         return Expression(Divide(other, self.copy()))
@@ -305,7 +305,7 @@ class Unknown(IUnknown, BasicUnknown):
     def __pow__(self, other: OtherType, *modulo) -> ResultType:
         power = self.power * other
         coefficient = self.coefficient ** other
-        r = Unknown(self.representation, coefficient, power)
+        r = Variable(self.representation, coefficient, power)
 
         if modulo:
             return Expression(Modulo(r, modulo[0]))
@@ -313,12 +313,12 @@ class Unknown(IUnknown, BasicUnknown):
 
     def __rpow__(self, other: OtherType, *modulo) -> ResultType:
         if modulo:
-            return RaisedUnknown(base=other, power=self.copy()).__mod__(modulo[0])
-        return RaisedUnknown(base=other, power=self.copy())
+            return RaisedVariable(base=other, power=self.copy()).__mod__(modulo[0])
+        return RaisedVariable(base=other, power=self.copy())
 
     __ipow__ = __pow__
 
-# Unknowns as a power
+# Variables as a power
 
 ''' Meths implemented
 __add__, __radd__, __iadd__
@@ -328,8 +328,8 @@ __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 __neg__
 '''
-class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
-    ''' A raised unknown is where a literal or unknown value is raised to another unknown value,
+class RaisedVariable(Generic[U], BasicNode, BasicVariable):
+    ''' A raised Variable is where a literal or Variable value is raised to another Variable value,
     we use this class as it maintains logic within the library.
     
     .. note::
@@ -338,9 +338,9 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
     .. code-block:: py
 
         >>> I = Integral(3)
-        >>> X = Unknown('x')
+        >>> X = Variable('x')
         >>> R = I ** X
-        RaisedUnknown(3 ** x)
+        RaisedVariable(3 ** x)
         >>> R * 2
         Expression(Multiply(3 ** x, 2))
     '''
@@ -348,8 +348,8 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
         self.base = base
         self.power = power
 
-    def copy(self) -> RaisedUnknown:
-        return RaisedUnknown(self.base, self.power)
+    def copy(self) -> RaisedVariable:
+        return RaisedVariable(self.base, self.power)
 
 
     def solve(self, **kwds) -> ResultType:
@@ -367,7 +367,7 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
 
 
     def __repr__(self) -> str:
-        return f'RaisedUnknown(base={self.base}, power={self.power})'
+        return f'RaisedVariable(base={self.base}, power={self.power})'
 
     def __str__(self) -> str:
         return f'{self.base} ** {self.power}'
@@ -393,8 +393,8 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
     __imul__ = __mul__
     __call__ = __mul__
 
-    def __neg__(self) -> RaisedUnknown:
-        return RaisedUnknown(-self.base, self.power)
+    def __neg__(self) -> RaisedVariable:
+        return RaisedVariable(-self.base, self.power)
 
     def __truediv__(self, other: OtherType) -> Expression:
         return Expression(Divide(self.copy(), other))
@@ -404,10 +404,10 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
 
     __itruediv__ = __truediv__
 
-    def __pow__(self, other: OtherType, *modulo) -> RaisedUnknown:
+    def __pow__(self, other: OtherType, *modulo) -> RaisedVariable:
         if modulo:
-            return Expression(Modulo(RaisedUnknown(self.base, self.power * other), modulo[0]))
-        return RaisedUnknown(self.base, self.power * other)
+            return Expression(Modulo(RaisedVariable(self.base, self.power * other), modulo[0]))
+        return RaisedVariable(self.base, self.power * other)
 
     def __rpow__(self, other: OtherType, *modulo) -> ResultType:
         if hasattr(other, 'power'):
@@ -421,7 +421,7 @@ class RaisedUnknown(Generic[U], BasicNode, BasicUnknown):
 
     __ipow__ = __pow__
 
-# Unknown groups
+# Variable groups
 
 ''' Meths Implemented
 __add__, __radd__, __iadd__
@@ -430,60 +430,60 @@ __mul__, __rmul__, __imul__, __neg__
 __truediv__, __rtruediv__, __itruediv__
 __pow__, __rpow__, __ipow__
 '''
-class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
-    ''' An unknown group is used where multiple unknowns make up a single unknown value,
-    So, ``5x`` is an Unknown whereas ``5x * y`` would be an UnknownGroup as theres 2 values.
+class VariableGroup(Generic[U], BasicNode, BasicVariable):
+    ''' An Variable group is used where multiple Variables make up a single Variable value,
+    So, ``5x`` is an Variable whereas ``5x * y`` would be an VariableGroup as theres 2 values.
 
     .. warning::
-        Reading coffecients from :attr:`UnknownGroup.groups` will always be one,
-        instead use :attr:`UnknownGroup.coefficient`.
+        Reading coffecients from :attr:`VariableGroup.groups` will always be one,
+        instead use :attr:`VariableGroup.coefficient`.
 
     .. note::
         Groups generally shouldn't need to be made manually,
-        they can easily be made by manipulating standard unknowns.
+        they can easily be made by manipulating standard Variables.
 
     .. code-block:: py
 
-        >>> x, y = Unknown.gen_many('x', 'y')
+        >>> x, y = Variable.gen_many('x', 'y')
         >>> g = x * y
         >>> g
-        UnknownGroup(xy)
+        VariableGroup(xy)
         >>> g.groups
-        [Unknown('x'), Unknown('y')]
+        [Variable('x'), Variable('y')]
         >>> g * y
-        UnknownGroup(xy**2)
-        # Groups == [Unknown('x'), Unknown('y', power=2, ...)]
+        VariableGroup(xy**2)
+        # Groups == [Variable('x'), Variable('y', power=2, ...)]
         >>> g + y
         Expression(xy + y)
     '''
-    def __new__(cls, coefficient: Any, *unknowns) -> None:
-        if coefficient == 0 or len(unknowns) == 0:
+    def __new__(cls, coefficient: Any, *Variables) -> None:
+        if coefficient == 0 or len(Variables) == 0:
             return Integral(0)
-        elif len(unknowns) == 1:
-            return unknowns[0]
-        return super(UnknownGroup, cls).__new__(cls)
+        elif len(Variables) == 1:
+            return Variables[0]
+        return super(VariableGroup, cls).__new__(cls)
 
-    def __init__(self, coefficient: Any, *unknowns) -> None:
+    def __init__(self, coefficient: Any, *Variables) -> None:
         self.coefficient = coefficient
         self.power = None
         self.groups = []
 
-        for group in unknowns:
-            if isinstance(group, Unknown):
-                group = Unknown(group.representation, 1, group.power)
+        for group in Variables:
+            if isinstance(group, Variable):
+                group = Variable(group.representation, 1, group.power)
                 self.groups.append(group)
             else:
                 self.coefficient *= group
 
     def __repr__(self) -> str:
-        return f'UnknownGroup({self.__str__()})'
+        return f'VariableGroup({self.__str__()})'
 
     def __str__(self) -> str:
         return (str(self.coefficient) if self.coefficient != 1 else '') + ''.join(map(lambda x: f'{x.representation}{f"**{x.power}" if x.power != 1 else ""}', self.groups))
 
 
     @staticmethod
-    def is_similar(x: UnknownGroup, y: UnknownGroup):
+    def is_similar(x: VariableGroup, y: VariableGroup):
         if len(x.groups) != len(y.groups):
             return False
         
@@ -507,8 +507,8 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                 d[u.representation] *= u
         return d
 
-    def copy(self) -> UnknownGroup:
-        return UnknownGroup(self.coefficient, *self.groups)
+    def copy(self) -> VariableGroup:
+        return VariableGroup(self.coefficient, *self.groups)
 
     def solve(self, **values) -> ResultType:
         result = 0
@@ -520,33 +520,33 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
     ''' Wrapped methods for handling these groups '''
 
     def __add__(self, other: OtherType) -> ResultType:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             if not self.is_similar(self, other):
                 return Expression(Add(self.copy(), other.copy()))
-            return UnknownGroup(self.coefficient + other.coefficient, *self.groups)
+            return VariableGroup(self.coefficient + other.coefficient, *self.groups)
         return Expression(Add(self.copy(), other))
 
     __radd__ = __add__
     __iadd__ = __add__
 
     def __sub__(self, other: OtherType) -> ResultType:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             if not self.is_similar(self, other):
                 return Expression(Add(self.copy(), -other))
-            return UnknownGroup(self.coefficient - other.coefficient, *self.groups)
+            return VariableGroup(self.coefficient - other.coefficient, *self.groups)
         return Expression(Add(self.copy(), -other))
 
     def __rsub__(self, other: OtherType) -> ResultType:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             if not self.is_similar(self, other):
                 return Expression(Add(-self, other.copy()))
-            return UnknownGroup(-self.coefficient + other.coefficient, *self.groups)
+            return VariableGroup(-self.coefficient + other.coefficient, *self.groups)
         return Expression(Add(-self, other))
 
     __isub__ = __sub__
 
     def __mul__(self, other: OtherType) -> None:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             coefficient = self.coefficient * other.coefficient
             mapping = self.as_mapping()
             for co in other.groups:
@@ -558,9 +558,9 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                     mapping[rep] = co
             nodes = mapping.values()
 
-            return UnknownGroup(coefficient, *nodes)
+            return VariableGroup(coefficient, *nodes)
 
-        elif isinstance(other, Unknown):
+        elif isinstance(other, Variable):
             coefficient = self.coefficient * other.coefficient
             mapping = self.as_mapping()
 
@@ -570,20 +570,20 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                     break
             else:
                 mapping[other.representation] = other
-            return UnknownGroup(coefficient, *mapping.values())
+            return VariableGroup(coefficient, *mapping.values())
 
         coefficient = self.coefficient * other
-        return UnknownGroup(coefficient, *self.groups)
+        return VariableGroup(coefficient, *self.groups)
 
     __rmul__ = __mul__
     __imul__ = __mul__
     __call__ = __mul__
 
-    def __neg__(self) -> UnknownGroup:
-        return UnknownGroup(self.coefficient * -1, *self.groups)
+    def __neg__(self) -> VariableGroup:
+        return VariableGroup(self.coefficient * -1, *self.groups)
 
     def __truediv__(self, other: OtherType) -> ResultType:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             coefficient = self.coefficient / other.coefficient
             mapping = self.as_mapping()
 
@@ -596,7 +596,7 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                 else:
                     remaining.append(group)
             
-            top = UnknownGroup(coefficient, *mapping.values())
+            top = VariableGroup(coefficient, *mapping.values())
             if not remaining:
                 return top
 
@@ -606,7 +606,7 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
 
             return Expression(Divide(top, r))
         
-        elif isinstance(other, Unknown):
+        elif isinstance(other, Variable):
             mapping = self.as_mapping()
 
             if other.representation in mapping:
@@ -614,17 +614,17 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                 mapping[other.representation] = g
 
                 coefficient = self.coefficient / other.coefficient
-                return UnknownGroup(coefficient, *mapping.values())
+                return VariableGroup(coefficient, *mapping.values())
             
             return Expression(Divide(self.copy(), other))
 
         elif isinstance(other, BasicExpression):
             return Expression(Divide(self.copy(), other))
 
-        return UnknownGroup(self.coefficient / other, *self.groups)
+        return VariableGroup(self.coefficient / other, *self.groups)
 
     def __rtruediv__(self, other: OtherType) -> ResultType:
-        if isinstance(other, UnknownGroup):
+        if isinstance(other, VariableGroup):
             coefficient = other.coefficient / self.coefficient
             mapping = other.as_mapping()
 
@@ -637,7 +637,7 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                 else:
                     remaining.append(group)
             
-            top = UnknownGroup(coefficient, *mapping.values())
+            top = VariableGroup(coefficient, *mapping.values())
             if not remaining:
                 return top
 
@@ -647,7 +647,7 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
 
             return Expression(Divide(top, r))
         
-        elif isinstance(other, Unknown):
+        elif isinstance(other, Variable):
             mapping = self.as_mapping()
 
             if other.representation in mapping:
@@ -655,7 +655,7 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
                 
                 if isinstance(g, Number):
                     mapping.pop(other.representation)
-                bottom = UnknownGroup(self.coefficient, *mapping.values())
+                bottom = VariableGroup(self.coefficient, *mapping.values())
 
                 return Expression(Divide(g, bottom))
             
@@ -664,15 +664,15 @@ class UnknownGroup(Generic[U], BasicNode, BasicUnknown):
         elif isinstance(other, BasicExpression):
             return Expression(Divide(other, self.copy()))
 
-        return UnknownGroup(other / self.coefficient, *self.groups)
+        return VariableGroup(other / self.coefficient, *self.groups)
 
     __itruediv__ = __truediv__
 
-    def __pow__(self, other: OtherType, *modulo) -> UnknownGroup:
+    def __pow__(self, other: OtherType, *modulo) -> VariableGroup:
         mapping = self.as_mapping()
         coefficient = self.coefficient ** other
 
-        result = UnknownGroup(coefficient, *map(lambda x: x ** other, mapping.values()))
+        result = VariableGroup(coefficient, *map(lambda x: x ** other, mapping.values()))
         if modulo:
             return result % modulo[0]
         return result

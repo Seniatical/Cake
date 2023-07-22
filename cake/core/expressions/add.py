@@ -1,11 +1,11 @@
 ## Nodes are used for generating syntax trees for simplifying expressions
 ## For example:
 ##
-## Unknown + Unknown -> Add(Unknown, Unknown)
+## Variable + Variable -> Add(Variable, Variable)
 ##
-## Expression('x + y') / 5 -> Divide(Add(Unknown, Unknown), 5)
+## Expression('x + y') / 5 -> Divide(Add(Variable, Variable), 5)
 ##
-## Unknown + Unknown - Unknown -> Add(Add(Unknown, Unknown), -Unknown)
+## Variable + Variable - Variable -> Add(Add(Variable, Variable), -Variable)
 ##
 ## (U1 + U2)(U3 - U4) -> Add(U1 * U3, U1 * U4, U2 * U3, U2 * U4)
 ##                    -> Add(U1 * U3, Add(U1 * U4 + U2 * U3), U2 * U4)
@@ -75,7 +75,7 @@ class Add(Operation):
 
             if not isinstance(node, BasicNode):
                 if isinstance(node, str):
-                    node = cake.Unknown(node)
+                    node = cake.Variable(node)
                 else:
                     node = cake.Number.convert(node)
 
@@ -84,14 +84,14 @@ class Add(Operation):
                     cleaned_nodes[index] = node + cleaned_nodes[index]
                     break
 
-                if isinstance(node, cake.Unknown) and isinstance(cleaned_node, cake.Unknown):
-                    similar = cake.Unknown.is_similar(node, cleaned_node)
+                if isinstance(node, cake.Variable) and isinstance(cleaned_node, cake.Variable):
+                    similar = cake.Variable.is_similar(node, cleaned_node)
                     if similar:
                         cleaned_nodes[index] = cleaned_nodes[index] + node
                         break
 
-                if isinstance(node, cake.UnknownGroup) and isinstance(cleaned_node, cake.UnknownGroup):
-                    similar = cake.UnknownGroup.is_similar(node, cleaned_node)
+                if isinstance(node, cake.VariableGroup) and isinstance(cleaned_node, cake.VariableGroup):
+                    similar = cake.VariableGroup.is_similar(node, cleaned_node)
                     if similar:
                         cleaned_nodes[index] = cleaned_nodes[index] + node
 

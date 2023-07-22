@@ -10,7 +10,7 @@ from .basic import (
     Real as IReal,
     Rational as IRational,
     Integral as IIntegeral,
-    Unknown as IUnknown,
+    Variable as IVariable,
     Function as IFunction
 )
 IFloat = IReal
@@ -38,7 +38,7 @@ from .core.numbers import (
     Integral
 )
 Float = Real
-from .core.unknowns import BasicUnknown, Unknown, UnknownGroup, RaisedUnknown
+from .core.variables import BasicVariable, Variable, VariableGroup, RaisedVariable
 from .core.functions import (
     Function,
     Sin,

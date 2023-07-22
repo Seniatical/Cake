@@ -21,7 +21,7 @@ class BasicNode(Basic):
 
     .. code-block:: py
 
-        >>> issubclass(Unknown, BasicNode)
+        >>> issubclass(Variable, BasicNode)
         True
         >>> issubclass(Number, BasicNode)
         True
@@ -45,9 +45,9 @@ class BasicExpression(Iterator[BasicNode]):
 
     .. code-block:: py
         
-        from cake import Unknown
+        from cake import Variable
 
-        a, b, c = Unknown.gen_many('a', 'b', 'c')
+        a, b, c = Variable.gen_many('a', 'b', 'c')
         expr = a + b + c
 
         print(expr.solve(a=10, b=10, c=10))
