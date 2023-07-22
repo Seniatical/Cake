@@ -10,7 +10,7 @@ from .add import (
     Operation,
     Add,
 )
-from .divide import Divide
+from .divide import Divide, FloorDiv, Modulo
 from .multiply import Multiply, Power
 
 OtherType = Union[OtherType, Operation]
@@ -21,7 +21,10 @@ __iter__, __next__,
 __repr__, __str__,
 __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
-__mul__, __rmul__, __imul__
+__mul__, __rmul__, __imul__,
+__truediv__, __rtruediv__, __itruediv__
+__floordiv__, __rfloordiv__, __ifloordiv__
+__mod__, __rmod__, __imod__
 __neg__, __pos__
 '''
 class Expression(BasicExpression):
@@ -103,6 +106,20 @@ class Expression(BasicExpression):
 
         return numerator / denomiator
 
+    def _floordiv(self, node: Divide, **kwds) -> Any:
+        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator = self._try_get_child_value(numerator, **kwds)
+        denomiator = self._try_get_child_value(denomiator, **kwds)
+
+        return numerator // denomiator
+
+    def _modulo(self, node: Divide, **kwds) -> Any:
+        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator = self._try_get_child_value(numerator, **kwds)
+        denomiator = self._try_get_child_value(denomiator, **kwds)
+
+        return numerator % denomiator
+
     ''' End operations '''
 
     def _identify_helper(self, node: Any = None, *, raise_not_impl: bool = False) -> Any:
@@ -115,10 +132,13 @@ class Expression(BasicExpression):
             return self._power
         elif isinstance(node, Divide):
             return self._truediv
+        elif isinstance(node, FloorDiv):
+            return self._floordiv
+        elif isinstance(node, Modulo):
+            return self._modulo
 
         if raise_not_impl:
             raise NotImplemented
-
 
     def solve(self, **values) -> Any:
         ''' Produces a solution to the expression using provided values.
@@ -191,6 +211,22 @@ class Expression(BasicExpression):
         return Expression(Divide(other, self.exp))
 
     __itruediv__ = __truediv__
+
+    def __floordiv__(self, other: OtherType) -> Expression:
+        return Expression(FloorDiv(self.exp, other))
+
+    def __rfloordiv__(self, other: OtherType) -> Expression:
+        return Expression(FloorDiv(other, self.exp))
+
+    __ifloordiv__ = __floordiv__
+
+    def __mod__(self, other: OtherType) -> Expression:
+        return Expression(Modulo(self.exp, other))
+
+    def __rmod__(self, other: OtherType) -> Expression:
+        return Expression(Modulo(other, self.exp))
+
+    __imod__ = __mod__
 
     ''' END NUMERIC METHODS '''
 
