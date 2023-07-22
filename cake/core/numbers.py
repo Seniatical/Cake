@@ -275,13 +275,13 @@ class Number(INumber):
     ''' END NUMERICAL METHODS '''
 
     def __complex__(self) -> Complex:
-        return Complex(self.value)
+        return complex(self.value)
 
     def __float__(self) -> Real:
-        return Real(self.value)
+        return float(self.value)
 
     def __int__(self) -> Integral:
-        return Integral(self.value)
+        return int(self.value)
 
     def __str__(self) -> str:
         return str(self.value)
