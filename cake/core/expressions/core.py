@@ -16,22 +16,6 @@ from .multiply import Multiply, Power
 OtherType = Union[OtherType, Operation]
 
 
-def _add(node: Add, **vals) -> Any:
-    r = 0
-    for child in node.nodes:
-        try:
-            if hasattr(child, 'solve'):
-                r += child.solve(**vals)
-            elif hasattr(child, 'evaluate'):
-                r += child.evaluate(**vals)
-            else:
-                r += child
-        except Exception as e:
-            r += child
-
-    return r
-
-
 '''Meths implemented
 __iter__, __next__,
 __repr__, __str__,
@@ -77,9 +61,28 @@ class Expression(BasicExpression):
         self.exp = starting_op
 
 
-    def _identify_helper(self, *, raise_not_impl: bool = False) -> Any:
-        if isinstance(self.exp, Add):
-            return _add
+    def _add(self, node: Add, **vals) -> Any:
+        r = 0
+        for child in node.nodes:
+            try:
+                if hasattr(child, 'solve'):
+                    r += child.solve(**vals)
+                elif hasattr(child, 'evaluate'):
+                    r += child.evaluate(**vals)
+                elif isinstance(child, Operation):
+                    r += self._identify_helper(child, raise_not_impl=True)(child, **vals)
+                else:
+                    r += child
+            except Exception as e:
+                r += child
+
+        return r
+
+
+    def _identify_helper(self, node: Any = None, *, raise_not_impl: bool = False) -> Any:
+        node = node or self.exp
+        if isinstance(node, Add):
+            return self._add
 
         if raise_not_impl:
             raise NotImplemented
