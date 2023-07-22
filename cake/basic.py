@@ -166,6 +166,18 @@ class Function(Generic[F], BasicNode):
         self.auto_prehandle = False
         self.prehandler = None
 
+    def copy(self) -> Function:
+        f = self.__class__(self.parameter, self.coefficient, self.power)
+        f.auto_to_radians = self.auto_to_radians
+        f.auto_preprocess = self.auto_preprocess
+        f.preprocessor = self.preprocessor
+        f.auto_postprocess = self.auto_postprocess
+        f.postprocessor = self.postprocessor
+        f.auto_prehandle = self.auto_prehandle
+        f.prehandler = self.prehandler
+
+        return f 
+
     @abstractmethod
     def evaluate(self, /, to_radians: bool = False, 
                           use_preprocess: bool = False,
