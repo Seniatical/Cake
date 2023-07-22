@@ -7,7 +7,8 @@ from ._abc import BasicNode, BasicExpression
 from abc import abstractmethod
 import numbers
 
-from typing import Any, List, TypeVar, Generic, Union
+from typing import Any, Callable, List, TypeVar, Generic, Union
+import cake
 
 
 U = TypeVar('U')
@@ -116,17 +117,61 @@ class Function(Generic[F], BasicNode):
     behaves similarly to an unknown in the sense the value of the function is not calcuated until called.
     This feature allows it to intake unknowns as values.
     '''
-    cofficient: Any
+
+    coefficient: Any
+    ''' Functions coefficient '''
     power: Any
+    ''' Power function is raised to '''
     parameter: Any
+    ''' Internal parameter of function '''
+
+    auto_to_radians: bool
+    ''' Convert value to radians before passing through function '''
+
+    auto_preprocess: bool
+    ''' Whether to automatically preprocess value '''
+    preprocessor: Callable[[dict], dict]
+    ''' preprocessor function, the value passed is the dictionary of given values,
+    must return a new mapping of values to use instead.
+    '''
+
+    auto_postprocess: bool
+    ''' Whether to automatically post process value '''
+    postprocessor: Callable[[Any], Any]
+    ''' postprocessor function '''
+
+    auto_prehandle: bool
+    ''' Whether to automatically pre-handle a value, 
+        this is right before the value is passed through the handler
+        
+        ..warning:: 
+            this is after the value is converted to radians! '''
+
+    prehandler: Callable[[Any], Any]
+    ''' prehandler function '''
 
     def __init__(self, parameter: Any, coefficient: Any = 1, power: Any = 1) -> None:
-        self.parameter = parameter
-        self.cofficient = coefficient
-        self.power = power
+        self.parameter = parameter if not isinstance(parameter, cake.Operation) else cake.Expression(parameter)
+        self.coefficient = coefficient if not isinstance(coefficient, cake.Operation) else cake.Expression(coefficient)
+        self.power = power if not isinstance(power, cake.Operation) else cake.Expression(power)
+
+        self.auto_to_radians = False
+
+        self.auto_preprocess = False
+        self.preprocessor = None
+
+        self.auto_postprocess = False
+        self.postprocessor = None
+
+        self.auto_prehandle = False
+        self.prehandler = None
 
     @abstractmethod
-    def evaluate(self, **kwds) -> Any:
+    def evaluate(self, /, to_radians: bool = False, 
+                          use_preprocess: bool = False,
+                          use_postprocess: bool = False,
+                          use_prehandler: bool = False,
+                          **kwds) -> Any:
         ''' Evaluates the function returning either an updated version of the parameter or a value.
 
         >>> F = Function(Expression(Add(3, 'x')))
@@ -138,7 +183,7 @@ class Function(Generic[F], BasicNode):
         Function(3 + x)         ## Function is returned as x is still unknown
         '''
 
-OtherType = Union[Number, Unknown, BasicExpression, numbers.Number]
+OtherType = Union[Number, Unknown, BasicExpression, numbers.Number, Function]
 
 
 class Complex(Number):
