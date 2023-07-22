@@ -20,6 +20,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 import cake
+from cake.basic import OtherType
 from math import *
 
 
@@ -31,7 +32,7 @@ class Function(cake.IFunction, ABC):
 
     def __str__(self) -> str:
         if self.coefficient != 1:
-            coefficient = str(self.coefficient)
+            coefficient = f'{str(self.coefficient)}*'
         else:
             coefficient = ''
 
@@ -99,3 +100,26 @@ class Function(cake.IFunction, ABC):
         except Exception as e:
             self._err = e
             return self
+
+    ''' Numerical Methods '''
+
+    def __add__(self, other: OtherType) -> Any:
+        if other == self:
+            c = self.copy()
+            c.coefficient += 1
+            return c
+        return cake.Expression(cake.Add(self.copy(), other))
+
+    __radd__ = __add__
+    __iadd__ = __add__
+
+    def __sub__(self, other: OtherType) -> Any:
+        return self.__add__(-other)
+
+    def __rsub__(self, other: OtherType) -> Any:
+        f = self.copy()
+        f.coefficient *= -1
+
+        return f.__add__(other)
+
+    __isub__ = __sub__
