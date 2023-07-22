@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import deepcopy
 
 from cake._abc import BasicExpression, BasicNode
 from cake.basic import OtherType
@@ -15,6 +14,22 @@ from .divide import Divide
 from .multiply import Multiply, Power
 
 OtherType = Union[OtherType, Operation]
+
+
+def _add(node: Add, **vals) -> Any:
+    r = 0
+    for child in node.nodes:
+        try:
+            if hasattr(child, 'solve'):
+                r += child.solve(**vals)
+            elif hasattr(child, 'evaluate'):
+                r += child.evaluate(**vals)
+            else:
+                r += child
+        except Exception as e:
+            r += child
+
+    return r
 
 
 '''Meths implemented
@@ -61,6 +76,34 @@ class Expression(BasicExpression):
     def __init__(self, starting_op: Operation) -> None:
         self.exp = starting_op
 
+
+    def _identify_helper(self, *, raise_not_impl: bool = False) -> Any:
+        if isinstance(self.exp, Add):
+            return _add
+
+        if raise_not_impl:
+            raise NotImplemented
+
+
+    def solve(self, **values) -> Any:
+        ''' Produces a solution to the expression using provided values.
+
+        .. code-block:: py
+
+            >>> expr = Expression(Add('x', 5))
+            >>> expr
+            x + 5
+            >>> expr.solve(x=3)
+            Integral(8)
+        '''
+        # Since expression is a tree, we use a recursive type approach.
+        # Gather nodes for base expression, whilst traversing through these nodes solve and repeat
+        ## So with Add(..., Power(3, x), ...)
+        ## We add onto 0, if x is provided, compute and add if possible else expression
+        ## if x is not provided we create an add expression for Add(..., Power(3, x))
+
+        return self._identify_helper(raise_not_impl=True)(self.exp, **values)
+
     
     def __repr__(self) -> str:
         return f'Expression({str(self.exp)})'
@@ -69,6 +112,7 @@ class Expression(BasicExpression):
         return str(self.exp)
     
     ''' Numerical Methods '''
+    
     def __add__(self, other: OtherType) -> Expression:
         return Expression(Add(self.exp, other))
 
@@ -85,6 +129,12 @@ class Expression(BasicExpression):
 
     def __mul__(self, other: OtherType) -> Expression:
         if isinstance(self.exp, Divide):
+
+            if isinstance(other, Divide):
+                return Expression(Divide(self.exp.nodes[0] * other.nodes[0], self.exp.nodes[1] * other.nodes[0]))
+            elif isinstance(other, Expression) and isinstance(other.exp, Divide):
+                return Expression(Divide(self.exp.nodes[0] * other.exp.nodes[0], self.exp.nodes[1] * other.exp.nodes[0]))
+
             return Expression(Divide(self.exp.nodes[0] * other, self.exp.nodes[1]))
         
         if isinstance(self.exp, Add):
@@ -102,6 +152,9 @@ class Expression(BasicExpression):
     ''' END NUMERIC METHODS '''
 
     ''' UNARY OPS '''
+
+    def __neg__(self) -> Expression:
+        return self * -1
 
     ''' END UNARY OPS '''
 
