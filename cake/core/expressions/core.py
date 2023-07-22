@@ -12,6 +12,7 @@ from .add import (
 )
 from .divide import Divide, FloorDiv, Modulo
 from .multiply import Multiply, Power
+from .binaries import LeftShift, RightShift, And, Xor, Or
 
 OtherType = Union[OtherType, Operation]
 
@@ -25,6 +26,12 @@ __mul__, __rmul__, __imul__,
 __truediv__, __rtruediv__, __itruediv__
 __floordiv__, __rfloordiv__, __ifloordiv__
 __mod__, __rmod__, __imod__
+__pow__, __rpow__, __ipow__,
+__lshift__, __rlshift__, __ilshift__
+__rshift__, __rrshift__, __irshift__
+__and__, __rand__, __iand__
+__xor__, __rxor__, __ixor__
+__or__, __ror__, __ior__
 __neg__, __pos__
 '''
 class Expression(BasicExpression):
@@ -158,7 +165,6 @@ class Expression(BasicExpression):
         ## if x is not provided we create an add expression for Add(..., Power(3, x))
 
         return self._identify_helper(raise_not_impl=True)(self.exp, **values)
-
     
     def __repr__(self) -> str:
         return f'Expression({str(self.exp)})'
@@ -228,12 +234,63 @@ class Expression(BasicExpression):
 
     __imod__ = __mod__
 
+    def __pow__(self, other: OtherType) -> Expression:
+        return Expression(Power(self.exp, other))
+
+    def __rpow__(self, other: OtherType) -> Expression:
+        return Expression(Power(other, self.exp))
+
+    __ipow__ = __pow__
+
+    def __lshift__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(self.exp, other))
+
+    def __rlshift__(self, other: OtherType) -> Expression:
+        return Expression(LeftShift(other, self.exp))
+
+    __ilshift__ = __lshift__
+
+    def __rshift__(self, other: OtherType) -> Expression:
+        return Expression(RightShift(self.exp, other))
+
+    def __rrshift__(self, other: OtherType) -> Expression:
+        return Expression(RightShift(other, self.exp))
+
+    __irshift__ = __rshift__
+
+    def __and__(self, other: OtherType) -> Expression:
+        return Expression(And(self.exp, other))
+
+    def __rand__(self, other: OtherType) -> Expression:
+        return Expression(And(other, self.exp))
+
+    __iand__ = __and__
+
+    def __xor__(self, other: OtherType) -> Expression:
+        return Expression(Xor(self.exp, other))
+
+    def __rxor__(self, other: OtherType) -> Expression:
+        return Expression(Xor(other, self.exp))
+
+    __ixor__ = __xor__
+
+    def __or__(self, other: OtherType) -> Expression:
+        return Expression(Or(self.exp, other))
+
+    def __ror__(self, other: OtherType) -> Expression:
+        return Expression(Or(other, self.exp))
+    
+    __ior__ = __or__
+
     ''' END NUMERIC METHODS '''
 
     ''' UNARY OPS '''
 
     def __neg__(self) -> Expression:
         return self * -1
+
+    def __pos__(self) -> Expression:
+        return Expression(self.exp)
 
     ''' END UNARY OPS '''
 
