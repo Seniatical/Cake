@@ -189,6 +189,9 @@ class Expression(BasicExpression):
     __isub__ = __sub__
 
     def __mul__(self, other: OtherType) -> Expression:
+        if other == 1:
+            return Expression(self.exp) # Reduces messy expressions
+
         if isinstance(self.exp, Divide):
 
             if isinstance(other, Divide):
@@ -235,6 +238,8 @@ class Expression(BasicExpression):
     __imod__ = __mod__
 
     def __pow__(self, other: OtherType) -> Expression:
+        if other == 1:
+            return Expression(self.exp)     ## Reduces messy expressions
         return Expression(Power(self.exp, other))
 
     def __rpow__(self, other: OtherType) -> Expression:
