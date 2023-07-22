@@ -15,12 +15,17 @@ from .basic import (
 )
 IFloat = IReal
 
+from .utils import (
+    to_radians,
+    math
+)
+
 from .core.comparity import ComparitySymbol, Comparity
 from .core.expressions.core import (
     Expression
 )
 
-from .core.expressions.add import ExpressionNode, BasicNode, Add
+from .core.expressions.add import ExpressionNode, Operation, Add
 from .core.expressions.divide import Divide, FloorDiv, Modulo
 from .core.expressions.multiply import Multiply, Power
 
@@ -32,4 +37,8 @@ from .core.numbers import (
     Integral
 )
 Float = Real
-from .core.unknowns import Unknown, UnknownGroup, RaisedUnknown
+from .core.unknowns import BasicUnknown, Unknown, UnknownGroup, RaisedUnknown
+from .core.functions import (
+    Function,
+    Sin
+)
