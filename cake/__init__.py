@@ -41,10 +41,6 @@ Float = Real
 from .core.variables import BasicVariable, Variable, VariableGroup, RaisedVariable
 from .core.functions import (
     Function,
-    Truncate,
-    Ceil,
-    Floor,
-    Sqrt
 )
 
 from .functions.trigonometry import (
@@ -61,3 +57,9 @@ from .functions.trigonometry import (
     ACosH,
     ATanH,
 )
+from .functions.integral import (
+    Truncate,
+    Ceil,
+    Floor,
+)
+from .functions.roots import Root, Sqrt
