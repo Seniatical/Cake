@@ -338,7 +338,8 @@ class Complex(Number, IComplex, numbers.Complex, type=complex):
 
 
 class Real(Complex, IReal, numbers.Real, type=float):
-    ...
+    def as_integer_ratio(self):
+        return self.value.as_integer_ratio()
 
 
 class Rational(Real, IRational, numbers.Rational, type=float):
