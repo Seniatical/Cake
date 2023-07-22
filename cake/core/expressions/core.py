@@ -60,29 +60,61 @@ class Expression(BasicExpression):
     def __init__(self, starting_op: Operation) -> None:
         self.exp = starting_op
 
+    def _try_get_child_value(self, child: Any, **kwds) -> Any:
+        if hasattr(child, 'solve'):
+            return child.solve(**kwds)
+        elif hasattr(child, 'evaluate'):
+            return child.solve(**kwds)
+        elif isinstance(child, Operation):
+            return self._identify_helper(child, raise_not_impl=True)(child, **kwds)
+        return child
 
-    def _add(self, node: Add, **vals) -> Any:
+    ''' Operations '''
+    
+    def _add(self, node: Add, **kwds) -> Any:
         r = 0
         for child in node.nodes:
             try:
-                if hasattr(child, 'solve'):
-                    r += child.solve(**vals)
-                elif hasattr(child, 'evaluate'):
-                    r += child.evaluate(**vals)
-                elif isinstance(child, Operation):
-                    r += self._identify_helper(child, raise_not_impl=True)(child, **vals)
-                else:
-                    r += child
-            except Exception as e:
+                r += self._try_get_child_value(child, **kwds)
+            except Exception:
                 r += child
-
         return r
 
+    def _multiply(self, node: Multiply, **kwds) -> Any:
+        r = self._try_get_child_value(node.nodes[0], **kwds)
+        for child in node.nodes[1:]:
+            try:
+                r *= self._try_get_child_value(child, **kwds)
+            except Exception:
+                r *= child
+        return r
+
+    def _power(self, node: Power, **kwds) -> Any:
+        base, power = node.nodes        ## Validates is true power op
+        base = self._try_get_child_value(base, **kwds)
+        power = self._try_get_child_value(power, **kwds)
+
+        return base ** power
+
+    def _truediv(self, node: Divide, **kwds) -> Any:
+        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator = self._try_get_child_value(numerator, **kwds)
+        denomiator = self._try_get_child_value(denomiator, **kwds)
+
+        return numerator / denomiator
+
+    ''' End operations '''
 
     def _identify_helper(self, node: Any = None, *, raise_not_impl: bool = False) -> Any:
         node = node or self.exp
         if isinstance(node, Add):
             return self._add
+        elif isinstance(node, Multiply):
+            return self._multiply
+        elif isinstance(node, Power):
+            return self._power
+        elif isinstance(node, Divide):
+            return self._truediv
 
         if raise_not_impl:
             raise NotImplemented
@@ -151,6 +183,14 @@ class Expression(BasicExpression):
     __rmul__ = __mul__
     __imul__ = __mul__
     __call__ = __mul__
+
+    def __truediv__(self, other: OtherType) -> Expression:
+        return Expression(Divide(self.exp, other))
+
+    def __rtruediv__(self, other: OtherType) -> Expression:
+        return Expression(Divide(other, self.exp))
+
+    __itruediv__ = __truediv__
 
     ''' END NUMERIC METHODS '''
 
