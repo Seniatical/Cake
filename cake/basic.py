@@ -195,6 +195,10 @@ class Function(Generic[F], BasicNode):
         Function(3 + x)         ## Function is returned as x is still Variable
         '''
 
+    @property
+    def name(self) -> str:
+        return self.__class__.__name__
+
 OtherType = Union[Number, Variable, BasicExpression, numbers.Number, Function]
 
 

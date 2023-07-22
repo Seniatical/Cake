@@ -73,13 +73,11 @@ class Function(cake.IFunction, ABC):
                   **kwds) -> Any:
         if isinstance(self.parameter, cake.Expression):
             e = self.parameter.solve(**kwds)
-            if not hasattr(e, 'value'):
-                return self.__class__(e)
-            return self._handler(e, rad=to_rad)
+            value = getattr(e, 'value', e)
         elif isinstance(self.parameter, cake.BasicVariable):
-            return self._handler(self.parameter.solve(**kwds), rad=to_rad)
-
-        value = getattr(self.parameter, 'value', self.parameter)
+            value = self._handler(self.parameter.solve(**kwds), rad=to_rad)
+        else:
+            value = getattr(self.parameter, 'value', self.parameter)
         return self._handler(value, rad=to_rad, prehandle=prehandler)
 
     def evaluate(self, /, to_radians: bool = False, 
@@ -92,6 +90,7 @@ class Function(cake.IFunction, ABC):
                 kwds = self.preprocessor(kwds)
 
             r = self._evaluate(to_radians, use_prehandler, **kwds)
+
             value = self._try_solve_co(kwds) * (r ** self._try_solve_pow(kwds))
 
             if (use_postprocess or self.auto_postprocess) and self.postprocessor:
@@ -100,6 +99,16 @@ class Function(cake.IFunction, ABC):
         except Exception as e:
             self._err = e
             return self
+
+    ''' Comparitive Methods '''
+    def __eq__(self, other: OtherType) -> Any:
+        if not isinstance(other, Function):
+            return False
+        if other.name != self.name:
+            return False
+        elif other.parameter != self.parameter:
+            return False
+        return True
 
     ''' Numerical Methods '''
 
@@ -123,3 +132,28 @@ class Function(cake.IFunction, ABC):
         return f.__add__(other)
 
     __isub__ = __sub__
+
+    def __mul__(self, other: OtherType) -> Any:
+        if other == 1:
+            return self.copy()
+
+        if self == other:
+            s = self.copy()
+            s.coefficient *= other.coefficient
+            s.power += other.power
+            return s
+        return cake.Expression(cake.Multiply(self.copy(), other))
+
+    __rmul__ = __mul__
+    __imul__ = __mul__
+    __call__ = __mul__
+
+    def __pow__(self, other: OtherType) -> Any:
+        s = self.copy()
+        s.power *= other
+        return s
+
+    def __ipow__(self, other: OtherType) -> Any:
+        return cake.Expression(cake.Power(other, self.copy()))
+
+    __ipow__ = __pow__

@@ -67,13 +67,15 @@ class Sqrt(Root):
     def __str__(self) -> str:
         return Function.__str__(self)
 
+    copy = Function.copy
+
     def _reduce_if_possible(self, v):
         bases = _prime_factors(v)
 
         # a perfect square
         if len(bases) == 2:
             # sqrt ^ 2 (4) -> 2 ** 2 -> 4
-            return ((v ** self.base) ** 2) * self.coefficient
+            return ((v ** self.base) ** self.power) * self.coefficient
         # Unfactorable crap, return whole value just to be safe.
         if len(bases) == 1:
             return Sqrt(v, coefficient=self.coefficient, power=self.power)
@@ -93,9 +95,6 @@ class Sqrt(Root):
             v = to_radians(v)
         if opts.get('prehandle'):
             v = self.prehandler(v)
-        
-        if self.power != 1:
-            return (v ** self.base) ** self.power
 
         if isinstance(v, (Real, float)):
             top, bottom = map(self._reduce_if_possible, v.as_integer_ratio())

@@ -24,5 +24,5 @@ expr = Sqrt(x ** 2 + 3 * x)
 print(expr)
 # Sqrt(x**2 + 3x)
 print(expr.evaluate(x=3))
-# 4.242640687119285
+# 3*Sqrt(2)
 ```
