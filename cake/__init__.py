@@ -17,6 +17,7 @@ IFloat = IReal
 
 from .utils import (
     to_radians,
+    to_degrees,
     math
 )
 
@@ -40,5 +41,14 @@ Float = Real
 from .core.unknowns import BasicUnknown, Unknown, UnknownGroup, RaisedUnknown
 from .core.functions import (
     Function,
-    Sin
+    Sin,
+    Cos,
+    Tan,
+    SinH,
+    CosH,
+    TanH,
+    Truncate,
+    Ceil,
+    Floor,
+    Sqrt
 )
