@@ -25,4 +25,6 @@ print(expr)
 # Sqrt(x**2 + 3x)
 print(expr.evaluate(x=3))
 # 3*Sqrt(2)
+print(expr.evaluate(x=3).true_value())
+# 4.242640687119286
 ```
