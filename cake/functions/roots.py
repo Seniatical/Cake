@@ -90,6 +90,15 @@ class Sqrt(Root):
 
         return Sqrt(min_val, coefficient=co * self.coefficient, power=self.power)
 
+    def true_value(self, /, to_radians: bool = False, use_prehandler: bool = False, use_postprocess: bool = False) -> Any:
+        v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True)
+        v **= Real(0.5)
+        value = self._try_solve_co({}) * (v ** self._try_solve_pow({}))
+
+        if (use_postprocess or self.auto_postprocess) and self.postprocessor:
+            return self.postprocessor(value)
+        return value
+
     def _handler(self, v, **opts) -> Any:
         if opts.get('rad'):
             v = to_radians(v)
