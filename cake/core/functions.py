@@ -24,6 +24,14 @@ from cake.basic import OtherType
 from math import *
 
 
+''' Meths Implemented
+__add__, __radd__, __iadd__
+__sub__, __rsub__, __isub__
+__mul__, __rmul__, __imul__
+__pow__, __rpow__, __ipow__
+
+__eq__, __ne__
+'''
 class Function(cake.IFunction, ABC):
     _err: Any = None
 
@@ -109,6 +117,10 @@ class Function(cake.IFunction, ABC):
         elif other.parameter != self.parameter:
             return False
         return True
+
+    def __ne__(self, other: OtherType) -> Any:
+        ## Genius
+        return not (self == other)
 
     ''' Numerical Methods '''
 
