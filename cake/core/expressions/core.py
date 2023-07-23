@@ -107,25 +107,60 @@ class Expression(BasicExpression):
         return base ** power
 
     def _truediv(self, node: Divide, **kwds) -> Any:
-        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator, denominator = node.nodes      ## Validates node is a division
         numerator = self._try_get_child_value(numerator, **kwds)
-        denomiator = self._try_get_child_value(denomiator, **kwds)
+        denominator = self._try_get_child_value(denominator, **kwds)
 
-        return numerator / denomiator
+        return numerator / denominator
 
     def _floordiv(self, node: Divide, **kwds) -> Any:
-        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator, denominator = node.nodes
         numerator = self._try_get_child_value(numerator, **kwds)
-        denomiator = self._try_get_child_value(denomiator, **kwds)
+        denominator = self._try_get_child_value(denominator, **kwds)
 
-        return numerator // denomiator
+        return numerator // denominator
 
     def _modulo(self, node: Divide, **kwds) -> Any:
-        numerator, denomiator = node.nodes      ## Validates node is a division
+        numerator, denominator = node.nodes
         numerator = self._try_get_child_value(numerator, **kwds)
-        denomiator = self._try_get_child_value(denomiator, **kwds)
+        denominator = self._try_get_child_value(denominator, **kwds)
 
-        return numerator % denomiator
+        return numerator % denominator
+
+    def _leftshift(self, node: LeftShift, **kwds) -> Any:
+        left, right = node.nodes
+        left = self._try_get_child_value(left, **kwds)
+        right = self._try_get_child_value(right, **kwds)
+
+        return left << right
+
+    def _rightshift(self, node: LeftShift, **kwds) -> Any:
+        left, right = node.nodes
+        left = self._try_get_child_value(left, **kwds)
+        right = self._try_get_child_value(right, **kwds)
+
+        return left >> right
+
+    def _and(self, node: LeftShift, **kwds) -> Any:
+        left, right = node.nodes
+        left = self._try_get_child_value(left, **kwds)
+        right = self._try_get_child_value(right, **kwds)
+
+        return left & right
+
+    def _xor(self, node: LeftShift, **kwds) -> Any:
+        left, right = node.nodes
+        left = self._try_get_child_value(left, **kwds)
+        right = self._try_get_child_value(right, **kwds)
+
+        return left ^ right
+
+    def _or(self, node: LeftShift, **kwds) -> Any:
+        left, right = node.nodes
+        left = self._try_get_child_value(left, **kwds)
+        right = self._try_get_child_value(right, **kwds)
+
+        return left | right
 
     ''' End operations '''
 
@@ -143,9 +178,20 @@ class Expression(BasicExpression):
             return self._floordiv
         elif isinstance(node, Modulo):
             return self._modulo
+        elif isinstance(node, LeftShift):
+            return self._leftshift
+        elif isinstance(node, RightShift):
+            return self._rightshift
+        elif isinstance(node, And):
+            return self._and
+        elif isinstance(node, Xor):
+            return self._xor
+        elif isinstance(node, Or):
+            return self._or
 
         if raise_not_impl:
             raise NotImplemented
+        return None
 
     def solve(self, **values) -> Any:
         ''' Produces a solution to the expression using provided values.
