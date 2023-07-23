@@ -78,14 +78,20 @@ class Function(cake.IFunction, ABC):
     def _evaluate(self,
                   to_rad: bool = False,
                   prehandler: bool = False,
+                  o_v: bool = False,
                   **kwds) -> Any:
-        if isinstance(self.parameter, cake.Expression):
-            e = self.parameter.solve(**kwds)
-            value = getattr(e, 'value', e)
-        elif isinstance(self.parameter, cake.BasicVariable):
-            value = self._handler(self.parameter.solve(**kwds), rad=to_rad)
+        if hasattr(self.parameter, 'solve'):
+            value = self.parameter.solve(**kwds)
+        elif hasattr(self.parameter, 'evaluate'):
+            value = self.parameter.evaluate(**kwds)
         else:
-            value = getattr(self.parameter, 'value', self.parameter)
+            value = self.parameter
+        value = getattr(value, 'value', value)
+
+        ## Only the solved value wanted.
+        if o_v:
+            return value
+
         return self._handler(value, rad=to_rad, prehandle=prehandler)
 
     def evaluate(self, /, to_radians: bool = False, 
