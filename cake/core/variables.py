@@ -120,11 +120,26 @@ class BasicVariable(ABC):
 
     ''' Comparitive methods '''
 
-    def __eq__(self, other: OtherType) -> Comparity:
-        return Comparity(self.copy(), other, ComparitySymbol.EQUAL_TO)
+    def __eq__(self, other: OtherType) -> Union[Comparity, bool]:
+        if self.__class__ != other.__class__:
+            return False
 
-    def __ne__(self, other: OtherType) -> Comparity:
-        return Comparity(self.copy(), other, ComparitySymbol.NOT_EQUAL_TO)
+        if isinstance(self, RaisedVariable):
+            return Comparity(self, other, ComparitySymbol.EQUAL_TO)
+
+        ## Variable('x', coefficient=2) -> 2x
+        ## Variable('x', coefficient=3) -> 3x
+        ## '2x' == '3x' == False -> False is returned.
+        return str(self) == str(other)
+
+    def __ne__(self, other: OtherType) -> Union[Comparity, bool]:
+        r = (self == other)
+        if isinstance(r, ComparitySymbol):
+            r.symbol = ComparitySymbol.NOT_EQUAL_TO
+        else:
+            r = not r
+
+        return r
 
     def __lt__(self, other: OtherType) -> Comparity:
         return Comparity(self.copy(), other, ComparitySymbol.LESS_THAN)
@@ -152,7 +167,8 @@ class Variable(IVariable, BasicVariable):
     this class be integrated with other components within the cake library.
 
     .. note::
-        Using comparity operators such as `==` will not return a boolean value.
+        Using comparity operators such as ``>`` will not return a boolean value,
+        however, ``==`` and ``!=`` will return a bool value when comparing unknowns.
 
         .. code-block:: py
 
@@ -335,6 +351,10 @@ class RaisedVariable(Generic[U], BasicNode, BasicVariable):
     .. note::
         Most operations which are ran on this object will more then likely return expressions!
 
+    .. warning::
+        Unlike standard variables, raised variables will always return a comparity class when comparing,
+        to check if 2 raised variables are the same use :meth:`RaisedVariable.is_similar`.
+
     .. code-block:: py
 
         >>> I = Integral(3)
@@ -351,6 +371,10 @@ class RaisedVariable(Generic[U], BasicNode, BasicVariable):
     def copy(self) -> RaisedVariable:
         return RaisedVariable(self.base, self.power)
 
+    def is_similar(self, other: RaisedVariable) -> bool:
+        if (self.base == other.base) and (self.power == other.power):
+            return True
+        return False
 
     def solve(self, **kwds) -> ResultType:
         if hasattr(self.base, 'solve'):
