@@ -5,6 +5,15 @@
 # Cake
 Cake is a **WIP** computer algebraic system, which utilises pythons OOP to create powerful objects which can be used to simulate mathmatical expressions.
 
+## Installation
+```sh
+## Windows
+pip install -U git+https://github.com/Seniatical/Cake
+
+## Linux/Mac
+pip3 install -U git+https://github.com/Seniatical/Cake
+```
+
 ## Basic Usage
 ```py
 from cake import *
