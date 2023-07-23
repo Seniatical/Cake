@@ -70,7 +70,14 @@ class Sqrt(Root):
     copy = Function.copy
 
     def _reduce_if_possible(self, v):
-        bases = _prime_factors(v)
+        try:
+            bases = _prime_factors(v)
+        except TypeError:
+            return Sqrt(v)
+
+        if not bases or len(bases) == 1:
+            return Sqrt(v)
+
         groups = []
         ungrouped = []
 
