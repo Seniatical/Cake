@@ -27,10 +27,11 @@ from math import *
 ''' Meths Implemented
 __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
-__mul__, __rmul__, __imul__
+__mul__, __rmul__, __imul__, __neg__
 __pow__, __rpow__, __ipow__
 
 __eq__, __ne__
+__lt__, __le__, __gt__, __ge__
 '''
 class Function(cake.IFunction, ABC):
     _err: Any = None
@@ -128,6 +129,18 @@ class Function(cake.IFunction, ABC):
         ## Genius
         return not (self == other)
 
+    def __lt__(self, other: OtherType) -> Any:
+        return cake.Comparity(self.copy(), other, cake.ComparitySymbol.LESS_THAN)
+
+    def __le__(self, other: OtherType) -> Any:
+        return cake.Comparity(self.copy(), other, cake.ComparitySymbol.LESS_OR_EQUAL_TO)
+
+    def __gt__(self, other: OtherType) -> Any:
+        return cake.Comparity(self.copy(), other, cake.ComparitySymbol.GREATER_THAN)
+
+    def __ge__(self, other: OtherType) -> Any:
+        return cake.Comparity(self.copy(), other, cake.ComparitySymbol.GREATER_OR_EQUAL_TO)
+
     ''' Numerical Methods '''
 
     def __add__(self, other: OtherType) -> Any:
@@ -165,6 +178,11 @@ class Function(cake.IFunction, ABC):
     __rmul__ = __mul__
     __imul__ = __mul__
     __call__ = __mul__
+    
+    def __neg__(self) -> Function:
+        s = self.copy()
+        s.coefficient = s.coefficient * -1
+        return s
 
     def __pow__(self, other: OtherType) -> Any:
         s = self.copy()
