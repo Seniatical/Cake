@@ -1,3 +1,6 @@
+__version__ = '0.0.1a3'
+__author__ = 'Seniatical'
+
 from ._abc import (
     Basic,
     BasicNode,
