@@ -71,24 +71,24 @@ class Sqrt(Root):
 
     def _reduce_if_possible(self, v):
         bases = _prime_factors(v)
+        groups = []
+        ungrouped = []
 
-        # a perfect square
-        if len(bases) == 2:
-            # sqrt ^ 2 (4) -> 2 ** 2 -> 4
-            return ((v ** self.base) ** self.power) * self.coefficient
-        # Unfactorable crap, return whole value just to be safe.
-        if len(bases) == 1:
-            return Sqrt(v, coefficient=self.coefficient, power=self.power)
+        for base in bases:
+            if base in ungrouped:
+                groups.append(base)
+                ungrouped.remove(base)
+            else:
+                ungrouped.append(base)
 
-        min_val = min(bases)
-        bases.remove(min_val)
+        if not ungrouped:
+            ## Perfect square
+            x = reduce(mul, groups)
+            return x
+        coefficient = reduce(mul, groups)
+        param = reduce(mul, ungrouped)
 
-        if len(bases) == 2 and bases[0] == bases[1]:
-            co = bases[0]
-        else:
-            co = int(reduce(mul, bases) ** 0.5)
-
-        return Sqrt(min_val, coefficient=co * self.coefficient, power=self.power)
+        return Sqrt(param, coefficient)
 
     def true_value(self, /, to_radians: bool = False, use_prehandler: bool = False, use_postprocess: bool = False) -> Any:
         v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True)
