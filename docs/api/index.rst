@@ -21,3 +21,5 @@ Pages
 
     core/numbers
     core/variables
+    core/comparity
+    core/functions

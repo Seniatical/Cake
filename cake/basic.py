@@ -167,6 +167,8 @@ class Function(Generic[F], BasicNode):
         self.prehandler = None
 
     def copy(self) -> Function:
+        ''' Returns a shallow copy of the function '''
+
         f = self.__class__(self.parameter, self.coefficient, self.power)
         f.auto_to_radians = self.auto_to_radians
         f.auto_preprocess = self.auto_preprocess
