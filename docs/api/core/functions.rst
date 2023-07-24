@@ -20,4 +20,3 @@ Function
 ========
 .. autoclass:: cake.Function
     :members:
-    :show-inheritance:

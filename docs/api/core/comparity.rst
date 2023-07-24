@@ -18,7 +18,6 @@ Comparity
 =========
 .. autoclass:: cake.Comparity
     :members:
-    :show-inheritance:
 
 
 Comparity Symbol

@@ -18,32 +18,27 @@ Number
 ======
 .. autoclass:: cake.Number
     :members:
-    :show-inheritance:
 
 
 Complex
 =======
 .. autoclass:: cake.Complex
     :members:
-    :show-inheritance:
 
 
 Real
 ====
 .. autoclass:: cake.Real
     :members:
-    :show-inheritance:
 
 
 Rational
 ========
 .. autoclass:: cake.Rational
     :members:
-    :show-inheritance:
 
 
 Integral
 ========
 .. autoclass:: cake.Integral
     :members:
-    :show-inheritance:
