@@ -1,4 +1,3 @@
 pydata-sphinx-theme
-enum-tools[sphinx]
 sphinx
 git+https://github.com/Seniatical/Cake
