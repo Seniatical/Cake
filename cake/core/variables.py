@@ -8,7 +8,8 @@ from cake import (
     BasicNode,
     Comparity, ComparitySymbol,
     Add, Divide, Multiply, Power, FloorDiv,
-    Modulo
+    Modulo,
+    utils
 )
 from cake.basic import OtherType
 from .numbers import Number, Integral
@@ -220,7 +221,7 @@ class Variable(IVariable, BasicVariable):
 
     @staticmethod
     def is_similar(x: Variable, y: Variable) -> bool:
-        ''' Returns whether 2 Variables can be merged into a single one,
+        ''' Returns whether 2 Variables can interact with one another,
 
         so ``Variable.is_similar(3x, 4x)`` is True but ``Variable.is_similar(4y, 3x)`` is False.
         '''
@@ -234,11 +235,13 @@ class Variable(IVariable, BasicVariable):
         v = value
         if v is None:
             v = _v.pop(self.representation, None)
+        v = v or getattr(v, 'value', None)
 
         if v is None:
             raise ValueError('No value provided')
 
-        return (self.coefficient * v) ** self.power
+        # self.coefficient * (v ** self.power)
+        return utils.solve_if_possible(self.coefficient, **_v) * (v ** utils.solve_if_possible(self.power, **_v))
 
     def __add__(self, other: OtherType) -> ResultType:
         if isinstance(other, Variable) and self.is_similar(self, other):
@@ -279,6 +282,10 @@ class Variable(IVariable, BasicVariable):
                 return Variable(self.representation, co, po)
             
             co_ef = self.coefficient * other.coefficient
+            if c := getattr(other, '_to_type', None):
+                ## Constant was used
+                other = c(1, other.power)
+
             return VariableGroup(co_ef, self, other)
         else:
             return Variable(self.representation, self.coefficient * other, self.power)
