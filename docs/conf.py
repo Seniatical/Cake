@@ -70,7 +70,7 @@ html_theme_options = {
    "footer_start": ["last-updated"],
    "footer_end": ["copyright"],
 
-   "announcement": "Cake is currently in its early stages, errors may be expected! If you happen to encounter any please report <a href='https://github.com/Seniatical/Cake/Issues'>here</a>",
+   "announcement": "Cake is in its <b>very early stages</b>, <b>errors</b> are expected, please report any you find <a href='https://github.com/Seniatical/Cake/issues'>here</a>.",
 }
 
 html_sidebars = {

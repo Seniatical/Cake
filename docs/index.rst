@@ -1,7 +1,10 @@
-.. cake documentation master file, created by
-   sphinx-quickstart on Mon Jul 24 15:20:02 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. meta::
+   :title: Cake - Documentation
+   :type: website
+   :url: https://cakepy.rtfd.io
+   :description: Welcome to Cake's documentation.
+   :theme-color: #f54646
+
 
 ********************************
 Welcome to Cake's documentation!
@@ -13,10 +16,10 @@ Welcome to the cake library, a powerful OOP based mathmatical library for python
    from cake import *
 
    x = Variable('x')
-   expr = Sqrt(x + 5)
+   expr = x + 5
 
-   print(expr.solve(x=20))
-   # 5
+   print(expr.solve(x=5))
+   # 10
 
 
 Getting Started 
@@ -31,10 +34,14 @@ To get started with cake, we need you to install it first.
    ## Linux/Mac
    pip3 install git+https://github.com/Seniatical/Cake
 
+Once installed, have fun!
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   api/index
 
 
 Indices and tables
