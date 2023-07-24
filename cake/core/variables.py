@@ -167,7 +167,7 @@ __neg__
 '''
 class Variable(IVariable, BasicVariable):
     ## Give a more impressive trig example later
-    
+
     ''' An object which represents an Variable number/value,
     this class be integrated with other components within the cake library.
 
@@ -190,7 +190,7 @@ class Variable(IVariable, BasicVariable):
             True
 
     .. tip::
-        Using Variables in trig
+        Using Variables in functions
 
         .. code-block:: py
 
@@ -198,6 +198,7 @@ class Variable(IVariable, BasicVariable):
 
             f = Sin(Variable('x'))
             # Can be shown as f(x) = sin x
+            # Can be extended to expressions not just limited to a single variable.
 
             print(f.evaluate(x=90))
             # 1
@@ -211,7 +212,7 @@ class Variable(IVariable, BasicVariable):
         return super(Variable, cls).__new__(cls)
 
     def copy(self) -> Variable:
-        ''' Returns a shallow  '''
+        ''' Returns a shallow copy of the variable '''
         return Variable(self.representation, self.coefficient, self.power)
 
     @staticmethod
