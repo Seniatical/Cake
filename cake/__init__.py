@@ -46,6 +46,11 @@ from .core.functions import (
     Function,
 )
 
+from .constants.core import (
+    Constant,
+)
+from .constants.pi import Pi
+
 from .functions.trigonometry import (
     Sin,
     Cos,
@@ -64,5 +69,6 @@ from .functions.integral import (
     Truncate,
     Ceil,
     Floor,
+    Round,
 )
 from .functions.roots import Root, Sqrt
