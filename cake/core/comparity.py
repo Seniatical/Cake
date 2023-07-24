@@ -1,6 +1,7 @@
 from __future__ import annotations
 from enum import Enum
-from typing import TypeVar, Iterable, Generic
+from typing import TypeVar, Generic
+import cake
 
 L = TypeVar('L')
 R = TypeVar('R')
@@ -95,7 +96,7 @@ class Comparity(Generic[L, R]):
 
         return r
 
-    def fits(self, **values) -> bool:
+    def fits(self, **kwds) -> bool:
         ''' Checks whether given values fit inside of the comparitive expression,
         for chained expressions each pair is worked out, 
         any pairs returning Comparity are assumed False.
@@ -116,21 +117,9 @@ class Comparity(Generic[L, R]):
 
         for pair in pairs:
             l, s, r = pair
-            if hasattr(l, 'groups'):
-                l = l.solve(**values)
-            elif hasattr(l, 'representation'):
-                if l.representation in values:
-                    l = l.solve(values[l.representation])
-            elif hasattr(l, 'solve'):
-                l = l.solve(**values)
 
-            if hasattr(r, 'groups'):
-                r = r.solve(**values)
-            elif hasattr(r, 'representation'):
-                if r.representation in values:
-                    r = r.solve(values[r.representation])
-            elif hasattr(r, 'solve'):
-                r = r.solve(**values)
+            l = cake.utils.solve_if_possible(l, **kwds)
+            r = cake.utils.solve_if_possible(r, **kwds)
 
             if isinstance(r := _mthds[s.value](l, r), bool):
                 results.append(r)
