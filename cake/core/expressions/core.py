@@ -6,7 +6,7 @@ from cake import (
     Comparity,
     ComparitySymbol
 )
-from typing import Any, List, Union
+from typing import Any, Union
 
 
 from .add import (
@@ -36,6 +36,9 @@ __and__, __rand__, __iand__
 __xor__, __rxor__, __ixor__
 __or__, __ror__, __ior__
 __neg__, __pos__
+
+__eq__, __ne__
+__gt__, __ge__, __lt__, __le__
 '''
 class Expression(BasicExpression):
     ''' Represents an expression within the cake library,
@@ -43,21 +46,6 @@ class Expression(BasicExpression):
     inorder to compute equations use an :class:`Equations` object.
 
     Which are simply 2 expressions with a comparity operator between them.
-
-    .. tip::
-        Expressions can be directly executed using :meth:`Expression.solve`.
-        However, for specific methods for different mathmatical expressions such as Quadratics,
-        use the dedicated methods.
-
-        .. rubric:: Example
-
-        .. code-block:: py
-
-            from cake.expressions import QuadraticExpr
-
-            expr = QuadraticExpr.random()
-            print('Expression: ', expr)
-            print('Solutions: ', expr.solve())
 
     .. hint::
         Iterating through expressions simply returns the node,
@@ -73,6 +61,17 @@ class Expression(BasicExpression):
         >>> expr = Expression(Add('x', 5))
         >>> expr
         x + 5
+
+    Parameters
+    ----------
+    starting_op: :class:`cake.Operation`
+        Operation the expression begins with.
+
+        .. code-block:: py
+
+            >>> op = Add('x', 5)
+            >>> Expression(op)
+            x + 5
     '''
     def __init__(self, starting_op: Operation) -> None:
         self.exp = starting_op
@@ -202,6 +201,7 @@ class Expression(BasicExpression):
 
     def solve(self, **values) -> Any:
         ''' Produces a solution to the expression using provided values.
+        Any variables in the expression must be passed as a **kwarg**!
 
         .. code-block:: py
 

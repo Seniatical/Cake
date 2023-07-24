@@ -101,6 +101,9 @@ class Comparity(Generic[L, R]):
         for chained expressions each pair is worked out, 
         any pairs returning Comparity are assumed False.
 
+        .. note::
+            Any variables must be passed as a **kwarg**!
+
         .. code-block:: py
 
             >>> c = x > 5

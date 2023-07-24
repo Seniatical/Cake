@@ -1,5 +1,5 @@
 '''
-Functions in the cake library are used to imitate the default Sin, Cos and Tan mathmatical functions,
+Functions in the cake library are used to imitate mathmatical functions such as Sin, Cos and Tan,
 except they are able to operate using core components in the cake library such as ``Variables``.
 
 >>> from cake import Sin, Variable, Expression, Add
@@ -35,6 +35,35 @@ __eq__, __ne__
 __lt__, __le__, __gt__, __ge__
 '''
 class Function(cake.IFunction, ABC):
+    ''' Represents a basic function in the cake library,
+    this base function can be used to define your own functions in an elegant manner.
+
+    .. code-block:: py
+
+        from cake import *
+
+        class MyFunc(Function):
+            def _handler(self, value, **options) -> Any:
+                return value * 3
+
+        f = MyFunc(Variable('x'))
+        print(f.evaluate(x=3))
+        # 9
+
+    Parameters
+    ----------
+    parameter: Any[Like[cake.BasicNode]]:
+        Parameter of the function, can be any value which is like a ``BasicNode``.
+    coefficient: Any[Like[cake.BasicNode]]
+        Coefficient of the function, can be any value which is like a ``BasicNode``.
+    power: Any[Like[cake.BasicNode]]
+        The value the function may be raised to, can be any value which is like a ``BasicNode``.
+
+        .. code-block:: py
+
+            >>> s = Sin(Variable('x'), power=2)
+            # s == sin^2(x)
+    '''
     _err: Any = None
 
     def __repr__(self) -> str:
@@ -54,7 +83,7 @@ class Function(cake.IFunction, ABC):
         return f'{coefficient}{self.__class__.__name__}{power}({self.parameter})'
 
     @abstractmethod
-    def _handler(self, v, **opts) -> Any:
+    def _handler(self, value, **options) -> Any:
         raise NotImplemented
 
     def _try_solve_co(self, kwds) -> Any:
@@ -101,6 +130,22 @@ class Function(cake.IFunction, ABC):
                           use_postprocess: bool = False, 
                           use_prehandler: bool = False, 
                           **kwds) -> Any:
+        ''' Evaluates the function, returning a result.
+
+        Parameters
+        ----------
+        to_radians: :class:`bool`
+            Whether to convert value given to radians,
+            useful for trig applications.
+        use_preprocess: :class:`bool`
+            Whether to use given pre processor, if any.
+        use_postprocess: :class:`bool`
+            Whether to use given post processor, if any.
+        use_prehandler: :class:`bool`
+            Whether to use given pre handler, if any.
+        **kwds: Any[Like[cake.BasicNode]]
+            Any values for variables to use.
+        '''
         try:
             if (use_preprocess or self.auto_preprocess) and self.preprocessor:
                 kwds = self.preprocessor(kwds)

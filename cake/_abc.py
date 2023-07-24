@@ -1,10 +1,14 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from typing import Type, TypeVar, Iterator, Union
+from typing import Generic, TypeVar, Iterator
 
 
 Self = TypeVar('Self')
+
+
+class Like(Generic[Self]):
+    ...
 
 
 class Basic(ABC, object):
@@ -30,7 +34,7 @@ class BasicNode(Basic):
     '''
 
 
-class BasicExpression(Iterator[BasicNode]):
+class BasicExpression(Like[Iterator[BasicNode]]):
     '''
     An object which represents an expression,
     any object which can be solved to return a desired result.

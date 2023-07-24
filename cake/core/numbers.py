@@ -36,8 +36,12 @@ __eq__, __ne__, __lt__, __gt__, __le__, __ge__
 __call__, __round__, __trunc__, __floor__, __ceil__
 '''
 class Number(INumber):
-    ''' Basic class for creating different types of numbers, 
-        this class can be treated as a normal integer.
+    ''' 
+    Basic class for creating different types of numbers, 
+    this class can be treated as a normal number like in python.
+
+    .. tip::
+        To retrieve the actual value of the class, use :attr:`Number.value`
 
     .. code-block:: py
 
@@ -62,10 +66,21 @@ class Number(INumber):
 
     @staticmethod
     def convert(x: Union[Number, numbers.Number, BasicExpression]) -> Number:
-        ## Helper method for converting between number types on results
-        if isinstance(x, BasicExpression):
-            return x
+        ''' Used to convert generic python types into types of the `cake` library
 
+        .. code-block:: py
+
+            >>> Number.convert(1)
+            Integral(1)
+            >>> Number.convert(1.4)
+            Real(1.4)
+
+        Parameters
+        ----------
+        x: Any[Like[Number]]
+            Value to convert, can be any value,
+            if value cannot be converted the original value is returned.
+        '''
         if isinstance(x, int):
             return Integral(x)
         elif isinstance(x, float):
@@ -74,18 +89,11 @@ class Number(INumber):
             return Complex(x)
         return x
 
-    def to_expr(self, *leading_nodes) -> Expression:
-        return Expression(self, *leading_nodes)
-
     def __add__(self, other: OtherType) -> OtherType:
-        if isinstance(other, BasicExpression):
-            other += self
-            return other
-
-        if isinstance(other, NumInstance):
-            return self.convert(self.value + getattr(other, 'value', other))
-
-        return Expression(self, other)
+        r = self.value + other
+        if isinstance(r, NumInstance):
+            return self.convert(r)
+        return r
 
     __radd__ = __add__
     __iadd__ = __add__
@@ -94,15 +102,10 @@ class Number(INumber):
         return self.__add__(-other)
 
     def __rsub__(self, other: OtherType) -> OtherType:
-        x = -self
-        if isinstance(other, BasicExpression):
-            other += x
-            return other
-
-        if isinstance(other, NumInstance):
-            return self.convert(other.value + x)
-        
-        return Expression(other, x)
+        r = other - self.value
+        if isinstance(r, NumInstance):
+            return self.convert(r)
+        return r
 
     __isub__ = __sub__
 
@@ -334,17 +337,22 @@ NumInstance = (Number, numbers.Number)
 
 
 class Complex(Number, IComplex, numbers.Complex, type=complex):
-    ...
+    ''' Represents a generic complex number '''
 
 
 class Real(Complex, IReal, numbers.Real, type=float):
+    ''' Represents a generic real number '''
+
     def as_integer_ratio(self):
         return self.value.as_integer_ratio()
 
+    as_integer_ratio.__doc__ = float.as_integer_ratio.__doc__
+
 
 class Rational(Real, IRational, numbers.Rational, type=float):
-    ...
+    ''' Represents a generic rational number '''
 
 
 class Integral(Rational, IIntegeral, numbers.Integral, type=int):
+    ''' Represents a generic integer '''
     ...
