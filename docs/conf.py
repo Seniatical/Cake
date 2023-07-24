@@ -18,6 +18,7 @@ extensions = [
    'sphinx.ext.extlinks',
    'sphinx.ext.intersphinx',
    'sphinx.ext.autosummary',
+   'enum_tools.autoenum',
 ]
 
 intersphinx_mapping = {

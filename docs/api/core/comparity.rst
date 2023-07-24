@@ -18,9 +18,10 @@ Comparity
 =========
 .. autoclass:: cake.Comparity
     :members:
+    :show-inheritance:
 
 
 Comparity Symbol
 ================
-.. autoclass:: cake.ComparitySymbol
+.. autoenum:: cake.ComparitySymbol
     :members:
