@@ -35,6 +35,14 @@ classifiers = [
     'Topic :: Scientific/Engineering',
 ]
 
+packages = [
+    'cake',
+    'cake.constants',
+    'cake.core',
+    'cake.core.expressions',
+    'cake.functions'
+]
+
 setup(
     name="Cake",
     version=version,
@@ -50,5 +58,5 @@ setup(
     license="MIT License",
     classifiers=classifiers,
     keywords="Math,Python3,OOP",
-    packages=find_packages(),
+    packages=packages,
 )
