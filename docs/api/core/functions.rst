@@ -16,6 +16,7 @@ which are able to support the use of generic cake objects within them as paramet
 .. note::
     For pre-defined functions visit the **Functions** section for more info.
 
+
 Function
 ========
 .. autoclass:: cake.Function

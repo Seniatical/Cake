@@ -22,5 +22,5 @@ Comparity
 
 Comparity Symbol
 ================
-.. autoenum:: cake.ComparitySymbol
+.. autoclass:: cake.ComparitySymbol
     :members:
