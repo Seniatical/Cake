@@ -21,6 +21,7 @@ from abc import ABC, abstractmethod
 
 import cake
 from cake.basic import OtherType
+from cake.core.numbers import NumInstance
 from math import *
 
 
@@ -172,6 +173,10 @@ class Function(cake.IFunction, ABC):
             s = self.copy()
             s.coefficient *= other.coefficient
             s.power += other.power
+            return s
+        elif isinstance(other, (cake.BasicVariable, NumInstance)):
+            s = self.copy()
+            s.coefficient *= other
             return s
         return cake.Expression(cake.Multiply(self.copy(), other))
 
