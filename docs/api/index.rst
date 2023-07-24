@@ -20,3 +20,4 @@ Pages
     :caption: Core
 
     core/numbers
+    core/variables

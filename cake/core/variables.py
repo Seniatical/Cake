@@ -13,7 +13,9 @@ from cake import (
 )
 from cake.basic import OtherType
 from .numbers import Number, Integral
-from typing import Any, Dict, Generic, TypeVar, Union
+from typing import Any, Generic, TypeVar, Union
+from operator import mul
+from functools import reduce
 
 from .expressions.binaries import *
 
@@ -164,6 +166,8 @@ __pow__, __rpow__, __ipow__
 __neg__
 '''
 class Variable(IVariable, BasicVariable):
+    ## Give a more impressive trig example later
+    
     ''' An object which represents an Variable number/value,
     this class be integrated with other components within the cake library.
 
@@ -191,22 +195,12 @@ class Variable(IVariable, BasicVariable):
         .. code-block:: py
 
             from cake import Sin, Variable
-            from cake.shapes import Triangle
 
-            t = Triangle.rand_right_angle()
-            t['A'] = 30
-            
-            # Assume t is modelled at AB=12, BC=5 and AC=13
-            # Angle BAC = 30 and the opposite side is BC
-            # Lets work out ACB
-            left = Sin(30) / 5
-            right = Sin(Variable('x')) / 12
-            eq = left.to_equation(right=right)
+            f = Sin(Variable('x'))
+            # Can be shown as f(x) = sin x
 
-            eq.multiply(12)
-            # (12 * Sin(30)) / 5 = Sin(x)
-            x = ArcSin(eq.left)
-            print(x.compute())
+            print(f.evaluate(x=90))
+            # 1
     '''
     def __new__(cls, repr: str, coefficient: Any = 1, power: Any = 1) -> Union[Number, Variable]:
         if power == 0:
@@ -217,6 +211,7 @@ class Variable(IVariable, BasicVariable):
         return super(Variable, cls).__new__(cls)
 
     def copy(self) -> Variable:
+        ''' Returns a shallow  '''
         return Variable(self.representation, self.coefficient, self.power)
 
     @staticmethod
@@ -232,6 +227,28 @@ class Variable(IVariable, BasicVariable):
         return True
 
     def solve(self, value: OtherType = None, **_v) -> ResultType:
+        '''
+        Solves the variable with provided values
+
+        .. code-block:: py
+
+            >>> x = Variable('x')
+            >>> x *= 3
+            >>> x **= 2
+            >>> x
+            3x**2
+            >>> x.solve(5)
+            75
+            >>> x.solve(x=5)
+            75
+            >>> x = Variable('x', coefficient=Variable('y', power=2))
+            >>> x
+            y**2x
+            >>> x.solve(2, y=3)
+            18
+            >>> x.solve(x=2, y=3)
+            18
+        '''
         v = value
         if v is None:
             v = _v.pop(self.representation, None)
@@ -376,26 +393,20 @@ class RaisedVariable(Generic[U], BasicNode, BasicVariable):
         self.power = power
 
     def copy(self) -> RaisedVariable:
+        ''' Returns a shallow copy of the class '''
         return RaisedVariable(self.base, self.power)
 
-    def is_similar(self, other: RaisedVariable) -> bool:
-        if (self.base == other.base) and (self.power == other.power):
+    @staticmethod
+    def is_similar(x: RaisedVariable, y: RaisedVariable) -> bool:
+        ''' Checks if 2 raised variables are similar '''
+        if (x.base == y.base) and (x.power == y.power):
             return True
         return False
 
     def solve(self, **kwds) -> ResultType:
-        if hasattr(self.base, 'solve'):
-            base = self.base.solve(**kwds)
-        else:
-            base = self.base
-
-        if hasattr(self.power, 'solve'):
-            power = self.power.solve(**kwds)
-        else:
-            power = self.power
-
+        base = utils.solve_if_possible(self.base, **kwds)
+        power = utils.solve_if_possible(self.power, **kwds)
         return base ** power
-
 
     def __repr__(self) -> str:
         return f'RaisedVariable(base={self.base}, power={self.power})'
@@ -514,22 +525,81 @@ class VariableGroup(Generic[U], BasicNode, BasicVariable):
 
 
     @staticmethod
-    def is_similar(x: VariableGroup, y: VariableGroup):
+    def is_similar(x: VariableGroup, y: VariableGroup) -> bool:
+        ''' Checks whether 2 variable groups are similar, meaning they can interact with each other.
+            This interaction includes adding, subtracting, division and more.
+
+        .. code-block:: py
+
+            >>> x, y, z = Variable.many('x', 'y', 'z')
+            >>> VariableGroup.is_similar(x * y, x * z)
+            False
+            >>> VariableGroup.is_similar(x * y, x * y)
+            True
+            >>> VariableGroup.is_similar(x * x * y, x * y)
+            False
+
+        Parameters
+        ----------
+        x, y: :class:`VariableGroup`
+            2 Groups to be compared.
+        '''
         if len(x.groups) != len(y.groups):
             return False
         
         x = {f'{i.representation}**{i.power}' for i in x.groups}
         y = {f'{i.representation}**{i.power}' for i in x.groups}
+        return x == y
 
-        if (x != y):
-            return False
-        return True
+    @classmethod
+    def is_roughly_similar(x: VariableGroup, y: VariableGroup) -> bool:
+        ''' 
+        Checks if 2 variable groups are roughly similar, meaning they can broadly interact. 
+        This interaction doesn't allow for adding and subtracting.
+
+        .. code-block:: py
+
+            >>> x, y, z = Variable.many('x', 'y', 'z')
+            >>> VariableGroup.is_roughly_similar(x * y, x * y)
+            True
+            >>> VariableGroup.is_roughly_similar(x * x * y, x * y)
+            True
+            >>> VariableGroup.is_roughly_similar(x * y, x * z)
+            False
+
+        Parameters
+        ----------
+        x, y: :class:`VariableGroup`
+            2 Groups to be compared.
+        '''
+        x_k = set(x.as_mapping().keys())
+        y_k = set(y.as_mapping().keys())
+
+        return x_k == y_k
 
     @property
     def representation(self) -> str:
+        ''' Returns how the group is represented as, without the group coefficient. ''' 
         return ''.join(i.representation for i in self.groups)
 
     def as_mapping(self) -> dict:
+        ''' Generates a mapping of the group.
+
+        .. code-block:: py
+
+            >>> g = x * y
+            >>> g.as_mapping()
+            {
+                'x': Unknown('x')
+                'y': Unknown('y')
+            }
+            >>> g *= 2
+            >>> g.as_mapping()
+            {
+                'x': Unknown('x', coefficient=2),
+                'y': Unknown('y', coefficient=2)
+            }
+        '''
         d = dict()
         for u in self.groups:
             if u.representation not in d:
@@ -539,14 +609,27 @@ class VariableGroup(Generic[U], BasicNode, BasicVariable):
         return d
 
     def copy(self) -> VariableGroup:
+        ''' Returns a shallow copy of the group '''
         return VariableGroup(self.coefficient, *self.groups)
 
     def solve(self, **values) -> ResultType:
-        result = 0
+        ''' Generates a value for the group using inputted values.
+
+        .. code-block:: py
+
+            >>> g = x * y
+            >>> g.solve(x=2, y=2)
+            4
+            >>> g.solve(x=2)
+            2y
+            >>> g.solve()
+            xy
+        '''
+        results = []
         for node in self.groups:
             if node.representation in values:
-                result += values[node.representation] ** node.power
-        return Number.convert(result * self.coefficient)
+                results.append(values[node.representation] ** node.power)
+        return Number.convert(reduce(mul, results)) * self.coefficient
 
     ''' Wrapped methods for handling these groups '''
 
