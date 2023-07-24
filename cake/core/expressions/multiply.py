@@ -9,7 +9,13 @@ class Multiply(Operation):
     def flatten(self) -> None:
         return
 
+    def __str__(self) -> str:
+        return ' * '.join(map(str, self.nodes))
+
 class Power(Operation):
+
+    def __str__(self) -> str:
+        return ' ** '.join(map(str, self.nodes))
 
     @property
     def base(self) -> Any:
