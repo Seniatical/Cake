@@ -2,6 +2,12 @@
     <img width="468" height="132" src="https://raw.githubusercontent.com/Seniatical/Cake/main/logos/logo.png" alt="Cake logo">
 </p>
 
+<p align="center">
+    <a href='https://cakepy.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/cakepy/badge/?version=latest' alt='Documentation Status' />
+    </a>
+</p>
+
 # Cake
 Cake is a **WIP** computer algebraic system, which utilises pythons OOP to create powerful objects which can be used to simulate mathmatical expressions.
 
