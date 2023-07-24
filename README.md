@@ -8,10 +8,11 @@
     </a>
 </p>
 
-# Cake
-Cake is a **WIP** computer algebraic system, which utilises pythons OOP to create powerful objects which can be used to simulate mathmatical expressions.
+<p align="center">
+    Cake is a <b>WIP</b> computer algebraic system, which utilises pythons OOP to create powerful objects which can be used to simulate mathmatical expressions.
+</p>
 
-## Installation
+# Installation
 ```sh
 ## Windows
 pip install -U git+https://github.com/Seniatical/Cake
@@ -20,7 +21,7 @@ pip install -U git+https://github.com/Seniatical/Cake
 pip3 install -U git+https://github.com/Seniatical/Cake
 ```
 
-## Basic Usage
+# Basic Usage
 ```py
 from cake import *
 
