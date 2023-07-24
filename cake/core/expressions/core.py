@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from cake._abc import BasicExpression, BasicNode
 from cake.basic import OtherType
-import cake
+from cake import (
+    Comparity,
+    ComparitySymbol
+)
 from typing import Any, List, Union
 
 
@@ -59,6 +62,10 @@ class Expression(BasicExpression):
     .. hint::
         Iterating through expressions simply returns the node,
         not the operand between them.
+
+    .. warning::
+        Expressions when being compared using symbols such as ``>`` will not return a boolean value,
+        instead :class:`Comparity` is returned.
 
     .. code-block:: py
 
@@ -235,7 +242,7 @@ class Expression(BasicExpression):
     __isub__ = __sub__
 
     def __mul__(self, other: OtherType) -> Expression:
-        if other == 1:
+        if (x := other == 1) and not isinstance(x, Comparity):
             return Expression(self.exp) # Reduces messy expressions
 
         if isinstance(self.exp, Divide):
@@ -346,6 +353,24 @@ class Expression(BasicExpression):
     ''' END UNARY OPS '''
 
     ''' OTHER METHODS '''
+
+    def __eq__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.EQUAL_TO)
+
+    def __ne__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.NOT_EQUAL_TO)
+
+    def __lt__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.LESS_THAN)
+
+    def __le__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.LESS_OR_EQUAL_TO)
+
+    def __gt__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.GREATER_THAN)
+
+    def __ge__(self, other: OtherType) -> Comparity:
+        return Comparity(self, other, ComparitySymbol.GREATER_OR_EQUAL_TO)
 
     def __next__(self) -> BasicNode:
         raise NotImplemented
