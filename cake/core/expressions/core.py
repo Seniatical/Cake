@@ -74,7 +74,7 @@ class Expression(BasicExpression):
         if hasattr(child, 'solve'):
             return child.solve(**kwds)
         elif hasattr(child, 'evaluate'):
-            return child.solve(**kwds)
+            return child.evaluate(**kwds)
         elif isinstance(child, Operation):
             return self._identify_helper(child, raise_not_impl=True)(child, **kwds)
         return child
