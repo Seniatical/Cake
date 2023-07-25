@@ -220,7 +220,10 @@ class Expression(BasicExpression):
         ## We add onto 0, if x is provided, compute and add if possible else expression
         ## if x is not provided we create an add expression for Add(..., Power(3, x))
 
-        return self._identify_helper(raise_not_impl=True)(self.exp, **values)
+        r = self._identify_helper(raise_not_impl=True)(self.exp, **values)
+        if isinstance(r, Operation):
+            return Expression(r)
+        return r
     
     def __repr__(self) -> str:
         return f'Expression({str(self.exp)})'

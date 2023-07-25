@@ -21,7 +21,14 @@ class ExpressionNode(ABC, object):
     ''' Base class for identifying nodes in an expression '''
 
     def __init__(self, x: BasicNode, y: BasicNode, /, *nodes: BasicNode) -> None:
-        self.nodes = (x, y) + nodes
+        self.nodes = list((x, y) + nodes)
+        for index, node in enumerate(self.nodes):
+            if not isinstance(node, BasicNode):
+                if isinstance(node, str):
+                    node = cake.Variable(node)
+                else:
+                    node = cake.Number.convert(node)
+                self.nodes[index] = node
 
         self.__post_init__()
 
@@ -73,12 +80,6 @@ class Add(Operation):
             if not node:
                 continue
 
-            if not isinstance(node, BasicNode):
-                if isinstance(node, str):
-                    node = cake.Variable(node)
-                else:
-                    node = cake.Number.convert(node)
-
             for index, cleaned_node in enumerate(cleaned_nodes):
                 if isinstance(node, cake.Number) and isinstance(cleaned_node, cake.Number):
                     cleaned_nodes[index] = node + cleaned_nodes[index]
@@ -94,6 +95,7 @@ class Add(Operation):
                     similar = cake.VariableGroup.is_similar(node, cleaned_node)
                     if similar:
                         cleaned_nodes[index] = cleaned_nodes[index] + node
+                        break
 
             else:
                 cleaned_nodes.append(node)
