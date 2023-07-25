@@ -13,7 +13,35 @@ def pairwise(supports_len) -> list:
         supports_len = supports_len[2:]
 
 
+## Got to explain each symbol in docstring
 class ComparitySymbol(str, Enum):
+    ''' Represents the comparison being made between 2 objects.
+
+    .. rubric:: EQUAL_TO
+
+    * Represents the ``==`` operator
+
+    .. rubric:: NOT_EQUAL_TO
+
+    * Represents the ``!=`` operator
+
+    .. rubric:: GREATER_THAN
+
+    * Represents the ``>`` operator
+
+    .. rubric:: GREATER_OR_EQUAL_TO
+
+    * Represents the ``>=`` operator
+
+    .. rubric:: LESS_THAN
+    
+    * Represents the ``<`` operator
+
+    .. rubric:: LESS_OR_EQUAL_TO
+
+    * Represents the ``<=`` operator
+    '''
+
     EQUAL_TO: str               = '=='
     NOT_EQUAL_TO: str           = '!='
     GREATER_THAN: str           = '>'
