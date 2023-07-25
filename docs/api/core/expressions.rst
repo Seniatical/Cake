@@ -96,16 +96,17 @@ Now whenever we want to print out our expression, we have a consistent approach
 Predefined Operations
 ---------------------
 
-* Add: :class:`Add` ~ Many nodes are able to be passed, represents the addition of all nodes.
+* **Add**: :class:`Add` ~ Many nodes are able to be passed, represents the addition of all nodes.
     - For subtraction simply use the Add operation but negate the subtraction node
-* Divide: :class:`Divide` ~ 2 nodes (x, y) are able to be passed, represents the division of 2 nodes.
+* **Divide**: :class:`Divide` ~ 2 nodes (x, y) are able to be passed, represents the division of 2 nodes.
     - Properties ``numerator`` and ``denominator`` are used to represent the 2 nodes
-* FloorDiv: :class:`FloorDiv` ~ Inherits all properties of :class:`Divide`, except represents the floor division of the nodes.
-* Modulo: :class:`Modulo` ~ Inherits all properties of :class:`Divide`, except represents mod of the 2 nodes.
-* Multiply: :class:`Multiply` ~ Many nodes are able to be passed, represents the multiplication of all nodes
-* Power: :class:`Power` ~ 2 nodes (x, y) are able to be passed, represents one node is raised to the other node
+* **FloorDiv**: :class:`FloorDiv` ~ Inherits all properties of :class:`Divide`, except represents the floor division of the nodes.
+* **Modulo**: :class:`Modulo` ~ Inherits all properties of :class:`Divide`, except represents mod of the 2 nodes.
+* **Multiply**: :class:`Multiply` ~ Many nodes are able to be passed, represents the multiplication of all nodes
+* **Power**: :class:`Power` ~ 2 nodes (x, y) are able to be passed, represents one node is raised to the other node
     - Properties ``base`` and ``power`` are used to represent the 2 nodes.
 
 Binary operators: :class:`LeftShift` (<<), :class:`RightShift` (>>), :class:`And` (&), :class:`Xor` (^) and :class:`Or` (|)
+
 - These are also supported and can only take 2 nodes (x, y) with no other special properties.
 - Each operation represents ``x ? y`` where *?* is the operator at hand.
