@@ -12,6 +12,9 @@
     Cake is a <b>WIP</b> computer algebraic system, which utilises pythons OOP to create powerful objects which can be used to simulate mathmatical expressions.
 </p>
 
+# Documentation
+You can view our documentation for cake [![here]](https://cake.rtfd.io).
+
 # Installation
 ```sh
 ## Windows
