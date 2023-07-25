@@ -52,5 +52,34 @@ Now that our operation is defined lets use it!
     >>> op = MyOperation('x', 'y', 5)
     # Same as doing (x + y + 5) * 3 in our case
     >>> expr = Expression(op)
+    >>> expr
+    MyOperation(x, y, 5)
     >>> expr.solve(x=5, y=5)
     45
+
+Prettifying Outputs
+-------------------
+You may have noticed that the string version of our operation isn't very nice,
+you can define your own `__str__` method which can better represent how your operation works,
+in our case its easy!
+
+.. code-block:: py
+    :emphasize-lines: 14,15,16,17
+
+    class MyOperation(cake.Operation):
+
+        ## My cool operation will return the sum of the nodes * 3
+        def run(self, node: MyOperation, **kwds) -> Any:
+            solved = map(lambda x: cake.utils.solve_if_possible(x, **kwds), self.nodes)
+            return sum(solved) * 3
+
+        ## Don't forget the flatten method, this serves as a cleanup function
+        ## Called straight after you initialise your operation
+        ## We dont need it for anything in our case.
+        def flatten(self) -> None:
+            return
+
+        ## Lets define a new str function
+        def __str__(self) -> str:
+            nodes = ' + '.join(map(str, self.nodes))
+            return f'(nodes) * 3'

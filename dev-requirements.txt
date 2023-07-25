@@ -1,3 +1,4 @@
 pydata-sphinx-theme
 sphinx
+sphinx-copybutton
 git+https://github.com/Seniatical/Cake
