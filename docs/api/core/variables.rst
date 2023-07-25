@@ -18,15 +18,18 @@ Variable
 ========
 .. autoclass:: cake.Variable
     :members:
+    :show-inheritance:
 
 
 Raised Variables
 ================
 .. autoclass:: cake.RaisedVariable
     :members:
+    :show-inheritance:
 
 
 Variable Groups
 ===============
 .. autoclass:: cake.VariableGroup
     :members:
+    :show-inheritance:

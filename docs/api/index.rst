@@ -23,3 +23,4 @@ Pages
     core/variables
     core/comparity
     core/functions
+    core/expressions

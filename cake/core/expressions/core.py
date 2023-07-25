@@ -194,6 +194,9 @@ class Expression(BasicExpression):
             return self._xor
         elif isinstance(node, Or):
             return self._or
+        elif isinstance(node, Operation):
+            if hasattr(node, 'run'):
+                return node.run
 
         if raise_not_impl:
             raise NotImplemented
