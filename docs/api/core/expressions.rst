@@ -25,6 +25,10 @@ Operations
 Operations are a fundemental part of expressions, 
 you can use our built in operations which cover most of the python arithmetic range.
 
+.. autoclass:: cake.Operation
+    :members:
+    :show-inheritance:
+
 Creating your own
 -----------------
 If your in need of your own operation, look no further.
