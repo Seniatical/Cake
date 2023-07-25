@@ -32,6 +32,13 @@ from .core.expressions.core import (
 from .core.expressions.add import ExpressionNode, Operation, Add
 from .core.expressions.divide import Divide, FloorDiv, Modulo
 from .core.expressions.multiply import Multiply, Power
+from .core.expressions.binaries import (
+    LeftShift,
+    RightShift,
+    And,
+    Xor,
+    Or
+)
 
 from .core.numbers import (
     Number,
