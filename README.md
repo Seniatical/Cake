@@ -13,7 +13,7 @@
 </p>
 
 # Documentation
-You can view our documentation for cake [here](https://cake.rtfd.io).
+You can view our documentation for cake [here](https://cakepy.rtfd.io).
 
 # Installation
 ```sh
