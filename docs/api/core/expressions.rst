@@ -82,4 +82,13 @@ in our case its easy!
         ## Lets define a new str function
         def __str__(self) -> str:
             nodes = ' + '.join(map(str, self.nodes))
-            return f'(nodes) * 3'
+            return f'({nodes}) * 3'
+
+Now whenever we want to print out our expression, we have a consistent approach
+
+.. code-block:: py
+
+    >>> op = MyOperation('x', 'y', 5)
+    >>> op
+    ## Before: MyOperation(x, y, 5)
+    (x + y + 5) * 3
