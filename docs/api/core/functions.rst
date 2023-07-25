@@ -21,3 +21,4 @@ Function
 ========
 .. autoclass:: cake.Function
     :members:
+    :inherited-members:
