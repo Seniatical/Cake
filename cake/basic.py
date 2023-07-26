@@ -144,7 +144,7 @@ class Function(Generic[F], BasicNode):
     ''' Whether to automatically pre-handle a value, 
         this is right before the value is passed through the handler
         
-        ..warning:: 
+        .. warning:: 
             this is after the value is converted to radians! '''
 
     prehandler: Callable[[Any], Any]
