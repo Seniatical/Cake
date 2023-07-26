@@ -97,6 +97,13 @@ ATan
     :show-inheritance:
 
 
+ATan2
+=====
+.. autoclass:: cake.ATan2
+    :members:
+    :show-inheritance:
+
+
 TanH
 ====
 .. autoclass:: cake.TanH
