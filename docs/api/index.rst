@@ -24,3 +24,9 @@ Pages
     core/comparity
     core/functions
     core/expressions
+
+.. toctree::
+    :titlesonly:
+    :caption: Functions
+    
+    functions/trig
