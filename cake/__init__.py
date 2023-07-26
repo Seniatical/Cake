@@ -65,6 +65,7 @@ from .functions.trigonometry import (
     ASin,
     ACos,
     ATan,
+    ATan2,
     SinH,
     CosH,
     TanH,
