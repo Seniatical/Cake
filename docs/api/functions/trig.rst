@@ -10,7 +10,7 @@
 ***********************
 Trigonometric Functions
 ***********************
-Cake offers built in support for the standard trigonometric functions which can be found in the :ref:`py:math` library.
+Cake offers built in support for the standard trigonometric functions which can be found in the :py:mod:`math` library.
 
 Sin
 ===
