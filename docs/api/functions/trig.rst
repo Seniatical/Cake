@@ -12,6 +12,21 @@ Trigonometric Functions
 ***********************
 Cake offers built in support for the standard trigonometric functions which can be found in the :py:mod:`math` library.
 
+Modifying Handlers
+==================
+You may have noticed that functions have attributes such as :attr:`Function.preprocessor`, but don't know how they can be used?
+Simply set the attribute to a callable object which can take the parameters stated in the documentation
+
+.. code-block:: py
+
+    from cake import *
+
+    my_awesome_pre_processor = lambda **kwds: kwds
+    f = Sin(Variable('x'))
+    f.preprocessor = my_awesome_pre_processor
+
+    ## Now we can carry on doing what we want with f
+
 Sin
 ===
 .. autoclass:: cake.Sin
