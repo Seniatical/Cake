@@ -15,7 +15,7 @@ Cake offers built in support for the standard trigonometric functions which can 
 Modifying Handlers
 ==================
 You may have noticed that functions have attributes such as :attr:`Function.preprocessor`, but don't know how they can be used?
-Simply set the attribute to a callable object which can take the parameters stated in the documentation
+Simply set the attribute to the desired value.
 
 .. code-block:: py
 
