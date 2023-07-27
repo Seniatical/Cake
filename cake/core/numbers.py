@@ -5,11 +5,10 @@ from cake import (
     IReal,
     IRational,
     IIntegeral,
-    IVariable
 )
 import numbers
 from math import trunc, floor, ceil
-from cake import BasicExpression, Expression
+from cake import BasicExpression
 from cake.basic import OtherType
 
 from typing import Any, Union, Tuple
