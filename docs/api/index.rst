@@ -31,3 +31,4 @@ Pages
     
     functions/trig
     functions/roots
+    functions/integral
