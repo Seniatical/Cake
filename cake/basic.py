@@ -229,7 +229,7 @@ class Rational(Real):
     numerator: Number
     denominator: Number
 
-    def __init__(self, value_or_numerator, /, denominator = None) -> None:
+    def __init__(self, value_or_numerator, denominator = None) -> None:
         if not denominator:
             value_or_numerator = float(value_or_numerator)
 

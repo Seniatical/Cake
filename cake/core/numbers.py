@@ -66,7 +66,7 @@ class Number(INumber):
 
     @staticmethod
     def convert(x: Union[Number, numbers.Number, BasicExpression]) -> Number:
-        ''' Used to convert generic python types into types of the `cake` library
+        ''' Used to convert generic python types into types of the ``cake`` library
 
         .. code-block:: py
 
@@ -337,11 +337,27 @@ NumInstance = (Number, numbers.Number)
 
 
 class Complex(Number, IComplex, numbers.Complex, type=complex):
-    ''' Represents a generic complex number '''
+    ''' Represents a generic complex number
+
+    .. code-block:: py
+
+        >>> Complex(1, 2) == 1+2j
+        True
+        >>> Complex(1, 2j) == 1+2j
+        True
+    '''
 
 
 class Real(Complex, IReal, numbers.Real, type=float):
-    ''' Represents a generic real number '''
+    ''' Represents a generic real number
+
+    .. code-block:: py
+
+        >>> Real(1.5) == 1.5
+        True
+        >>> Real(Integral(5)) = 5
+        True
+    '''
 
     def as_integer_ratio(self):
         return self.value.as_integer_ratio()
@@ -350,9 +366,22 @@ class Real(Complex, IReal, numbers.Real, type=float):
 
 
 class Rational(Real, IRational, numbers.Rational, type=float):
-    ''' Represents a generic rational number '''
+    ''' Represents a generic rational number
+
+    .. code-block:: py
+
+        >>> Rational(1, 3) == (1/3)
+        True
+        >>> Rational(1.5) == 1.5
+        True
+    '''
 
 
 class Integral(Rational, IIntegeral, numbers.Integral, type=int):
-    ''' Represents a generic integer '''
-    ...
+    ''' Represents a generic integer
+
+    .. code-block:: py
+
+        >>> Integral(10) == 10
+        True
+    '''
