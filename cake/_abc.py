@@ -1,7 +1,7 @@
 from __future__ import annotations
-from abc import ABC
+from abc import ABC, abstractmethod
 
-from typing import Generic, TypeVar, Iterator
+from typing import Any, Generic, TypeVar, Iterator
 
 
 Self = TypeVar('Self')
@@ -10,6 +10,12 @@ Self = TypeVar('Self')
 class Like(Generic[Self]):
     ''' Typehint used throughout the cake library,
     used to symbolise that a class behaves or can be shown as another implementation.
+    '''
+
+
+class Maybe(Generic[Self]):
+    ''' Typehint used throughout the cake library,
+    used to hint that an object may derive or be included in another category of objects.
     '''
 
 
@@ -36,26 +42,39 @@ class BasicNode(Basic):
     '''
 
 
-class BasicExpression(Like[Iterator[BasicNode]]):
+class BasicSolvable(Basic, Maybe[BasicNode]):
+    ''' An object which can be solved via the function ``solve`` '''
+
+    @abstractmethod
+    def solve(self, **kwds) -> Any:
+        ''' Values for solving the object for a desired value.
+
+        .. note::
+            The parameter format may change for certain objects.
+        '''
+
+
+class BasicEvaluator(Basic, Maybe[BasicNode]):
+    ''' An object which can be evaluated,
+    like a :class:`BasicSolvable` object except it is abit more then just an expression. 
     '''
-    An object which represents an expression,
-    any object which can be solved to return a desired result.
 
-    .. note::
-        Expressions generally should not be created directly,
-        this is to keep code bases simple and easy to understand.
+    @abstractmethod
+    def evaluate(self, **kwds) -> Any:
+        ''' Values for evaluating the object for a desired value.
 
-        .. tip::
-            :meth:`Expression.from_string` A helper method for parsing stringed expressions such as,
-            ``a + b + c`` can be used to generate the example below.
+        .. note::
+            The parameter format may change for certain objects.
+        '''
 
-    .. code-block:: py
-        
-        from cake import Variable
 
-        a, b, c = Variable.gen_many('a', 'b', 'c')
-        expr = a + b + c
+class BasicExpression(Like[Iterator[BasicNode]], BasicSolvable):
+    ''' An object which represents a generic expression. '''
 
-        print(expr.solve(a=10, b=10, c=10))
-        ## >> 30
-    '''
+
+class BasicVariable(BasicSolvable, Like[BasicExpression]):
+    ''' Represents a variable '''
+
+
+class BasicFunction(BasicEvaluator):
+    ''' Represents a mathmatical function '''

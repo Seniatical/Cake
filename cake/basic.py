@@ -3,11 +3,11 @@
 ## Actual methods for these classes are found in core/numbers.py
 
 from __future__ import annotations
-from ._abc import BasicNode, BasicExpression
+from ._abc import BasicNode, BasicExpression, BasicFunction, BasicVariable
 from abc import abstractmethod
 import numbers
 
-from typing import Any, Callable, List, TypeVar, Generic, Union
+from typing import Any, Callable, List, TypeVar, Union
 import cake
 
 
@@ -39,17 +39,17 @@ class Number(BasicNode, numbers.Number):
         self.__value = new
 
 
-class Variable(Generic[U], BasicNode):
+class Variable(BasicVariable, BasicNode):
     ''' Represents an Variable value, 
         this can be used inplace of any integer throughout the cake library.
         
-        ..note::
+        .. note::
             Where a specific type is required,
             having a default value is preferable
 
-        ..rubric:: Solving for when 'a' is known
+        .. rubric:: Solving for when 'a' is known
 
-        ..code-block:: py
+        .. code-block:: py
 
             >>> a = Variable('a')
             >>> expr = (a + 5) / 2
@@ -58,9 +58,9 @@ class Variable(Generic[U], BasicNode):
             >>> expr.solve(a=9)
             Real(7.0)
 
-        ..rubric:: Solving for 'a' when result is known
+        .. rubric:: Solving for 'a' when result is known
 
-        ..code-block:: py
+        .. code-block:: py
         
             >>> expr
             Expression((a + 5) / 2)
@@ -112,7 +112,7 @@ class Variable(Generic[U], BasicNode):
         return [cls(i) if isinstance(i, str) else cls(*i) for i in symbols]
 
 
-class Function(Generic[F], BasicNode):
+class Function(BasicFunction, BasicNode):
     ''' Base class for creating functions,
     behaves similarly to an Variable in the sense the value of the function is not calcuated until called.
     This feature allows it to intake Variables as values.
