@@ -50,6 +50,7 @@ Others
 ------
 
 .. toctree::
+    :titlesonly:
 
     utils
     basic
