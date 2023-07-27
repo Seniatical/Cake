@@ -46,8 +46,8 @@ Functions
     functions/integral
 
 
-Utils
------
+Others
+------
 
 .. toctree::
 
