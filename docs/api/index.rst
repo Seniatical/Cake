@@ -27,6 +27,13 @@ Pages
 
 .. toctree::
     :titlesonly:
+    :caption: Constants
+
+    constants/core
+    constants/basic
+
+.. toctree::
+    :titlesonly:
     :caption: Functions
     
     functions/trig

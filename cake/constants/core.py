@@ -1,23 +1,52 @@
 from __future__ import annotations
 from typing import Any, Union
 
-from cake import Expression, Variable, VariableGroup, Number
-from abc import ABC, abstractproperty, abstractmethod, abstractclassmethod
+from cake import Expression, Variable, VariableGroup, Number, utils
+from abc import ABC, abstractproperty, abstractclassmethod
 
 from cake.core.variables import OtherType, ResultType
 
 
 class Constant(Variable, ABC):
+    ''' Generic base class for defining constants,
+    behaves similar to :class:`Variable`.
+
+    .. code-block:: py
+
+        class MyConstant(Constant):
+            @classmethod
+            def _to_type(cls, coefficient: Any = 1, power: Any = 1) -> MyConstant:
+                return cls(coefficient, power)
+            
+            @property
+            def c_value(self) -> Any:
+                return 5.5  ## Value of the constant
+
+        ## Lets use our constant
+        mc = MyConstant()
+        x = Variable(x)
+        expr = x + mc(2)
+        print(expr)
+        ### x + 2MyConstant
+        print(expr.solve(x=3))
+        ### 14
+
+    Parameters
+    ----------
+    coefficient: Any[Like[cake.BasicNode]]
+        Coefficient of constant
+    power: Any[Like[cake.BasicNode]]
+        Power the constant is raised to
+    '''
+
     def __new__(cls, coefficient: Any = 1, power: Any = 1) -> Union[Number, Constant]:
         self = super().__new__(cls, cls.__class__.__name__)
 
         return self
 
-    @abstractmethod
     def solve(self, *_, **kwds) -> Any:
-        ''' Solves the current value of the constant, 
-            args parameter is provided to mimick :meth:`Variable.solve` '''
-        raise NotImplemented
+        v = self.c_value ** utils.solve_if_possible(self.power, **kwds)
+        return utils.solve_if_possible(self.coefficient, **kwds) * v
 
     @abstractclassmethod
     def _to_type(cls, coefficient: Any = 1, power: Any = 1) -> Constant:
