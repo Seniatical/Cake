@@ -27,10 +27,36 @@ def _prime_factors(factorable: Any) -> list:
 
 
 class Root(Function):
+    ''' Generic function for representing `n ** 1/x`,
+    unlike :class:`Sqrt` the :class:`Root` function doesn't reduce values to its simplest form.
+
+    .. code-block:: py
+
+        >>> r = Root(3, Variable('x'))
+        ## Same as (x ** (1/3))
+        >>> r.evaluate(x=27)
+        3.0
+        >>> r = Root(Variable('y'), Variable('x'))
+        ## Same as x ** y
+        >>> r.evaluate(y=1/3, x=27)
+        3.0
+
+    Parameters
+    ----------
+    base: Any[Like[cake.BasicNode]]
+        The base to raise the parameter to, 
+        if base < 0 then the value raised is equal to ``(1/base)``
+    parameter: Any[Like[cake.BasicNode]]
+        Function parameter
+    coefficient: Any[Like[cake.BasicNode]]
+        Function coefficient
+    power: Any[Like[cake.BasicNode]]
+        Value the function is raised to
+    '''
     base: Real
 
     def __init__(self, base: Any, parameter: Any, coefficient: Any = 1, power: Any = 1) -> None:
-        self.base = base
+        self.base = base if base < 0 else 1/base
         super().__init__(parameter, coefficient, power)
 
     def copy(self) -> Function:
@@ -61,6 +87,16 @@ class Root(Function):
 
 
 class Sqrt(Root):
+    ''' Built in sqrt function, which implements reducing into simplest form if possible.
+
+    .. code-block:: py
+
+        >>> f = Sqrt(Variable('x'))
+        >>> f.evaluate(x=18)
+        3*Sqrt(2)
+        >>> f.evaluate(x=4)
+        Real(2.0)
+    '''
     def __init__(self, parameter: Any, coefficient: Any = 1, power: Any = 1) -> None:
         super().__init__(Real(0.5), parameter, coefficient, power)
 
@@ -91,16 +127,29 @@ class Sqrt(Root):
         if not ungrouped:
             ## Perfect square
             x = reduce(mul, groups)
-            return x
+            return Real(x)
         coefficient = reduce(mul, groups)
         param = reduce(mul, ungrouped)
 
         return Sqrt(param, coefficient)
 
-    def true_value(self, /, to_radians: bool = False, use_prehandler: bool = False, use_postprocess: bool = False) -> Any:
+    def true_value(self, /, to_radians: bool = False, use_prehandler: bool = False, use_postprocess: bool = False, **kwds) -> Any:
+        ''' Reduces the value of the function to its true value if possible
+
+        .. code-block:: py
+
+            >>> Sqrt(2).true_value()
+            Real(1.4142135623730951)
+            >>> Sqrt(2, coefficient=Variable('x')).true_value(x=2)
+            Real(2.8284271247461903)
+
+        Parameters
+        ==========
+        Inherits all parameters from :meth:`Function.evaluate`
+        '''
         v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True)
         v **= Real(0.5)
-        value = self._try_solve_co({}) * (v ** self._try_solve_pow({}))
+        value = self._try_solve_co(kwds) * (v ** self._try_solve_pow(kwds))
 
         if (use_postprocess or self.auto_postprocess) and self.postprocessor:
             return self.postprocessor(value)
