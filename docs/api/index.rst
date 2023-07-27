@@ -44,3 +44,11 @@ Functions
     functions/trig
     functions/roots
     functions/integral
+
+
+Utils
+-----
+
+.. toctree::
+
+    utils
