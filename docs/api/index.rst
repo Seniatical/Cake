@@ -30,3 +30,4 @@ Pages
     :caption: Functions
     
     functions/trig
+    functions/roots
