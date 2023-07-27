@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any
-from cake import Real, Function, to_radians, Expression, Divide
+from cake import Real, Function, to_radians, Expression, Divide, utils
 
 from functools import reduce
 from operator import mul
@@ -145,7 +145,7 @@ class Sqrt(Root):
 
         Inherits all parameters from :meth:`Function.evaluate`
         '''
-        v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True)
+        v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True, **kwds)
         v **= Real(0.5)
         value = self._try_solve_co(kwds) * (v ** self._try_solve_pow(kwds))
 
