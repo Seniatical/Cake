@@ -12,12 +12,11 @@ API Reference
 *************
 API reference for the cake library, this documents the functionality and the uses of different objects in the cake library.
 
-Pages
-=====
+Core
+----
 
 .. toctree::
     :titlesonly:
-    :caption: Core
 
     core/numbers
     core/variables
@@ -25,16 +24,22 @@ Pages
     core/functions
     core/expressions
 
+
+Constants
+---------
+
 .. toctree::
     :titlesonly:
-    :caption: Constants
 
     constants/core
     constants/basic
 
+
+Functions
+---------
+
 .. toctree::
     :titlesonly:
-    :caption: Functions
     
     functions/trig
     functions/roots
