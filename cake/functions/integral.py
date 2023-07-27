@@ -81,6 +81,7 @@ class Floor(Function):
 
 class Round(Function):
     ''' Round function, see :py:obj:`round`
+    
     .. code-block:: py
 
         >>> r = Round(Variable('x'))
