@@ -143,8 +143,6 @@ class Sqrt(Root):
             >>> Sqrt(2, coefficient=Variable('x')).true_value(x=2)
             Real(2.8284271247461903)
 
-        Parameters
-        ==========
         Inherits all parameters from :meth:`Function.evaluate`
         '''
         v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True)
