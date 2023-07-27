@@ -21,6 +21,7 @@ ABCs in the cake library contain the derivatives of all the standard cake classe
 .. automodule:: cake._abc
     :members:
     :undoc-members:
+    :show-inheritance:
 
 Basics
 ======
@@ -28,3 +29,4 @@ Basics
 .. automodule:: cake.basic
     :members:
     :undoc-members:
+    :show-inheritance:
