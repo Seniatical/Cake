@@ -8,7 +8,9 @@ Self = TypeVar('Self')
 
 
 class Like(Generic[Self]):
-    ...
+    ''' Typehint used throughout the cake library,
+    used to symbolise that a class behaves or can be shown as another implementation.
+    '''
 
 
 class Basic(ABC, object):

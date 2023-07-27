@@ -52,3 +52,4 @@ Others
 .. toctree::
 
     utils
+    basic
