@@ -57,6 +57,16 @@ class Ceil(Function):
 
 class Floor(Function):
     ''' Floor function, see :py:obj:`math.floor`
+
+    .. code-block:: py
+
+        >>> f = Floor(Variable('x'))
+        >>> f.evaluate(x=1.5)
+        Real(1.0)
+        >>> f.evaluate(x=3.563)
+        Real(3.0)
+        >>> f.evaluate(x=Variable('y'))
+        Floor(y)
     '''
     def _handler(self, v, **opts) -> Any:
         if opts.get('rad'):
@@ -70,7 +80,26 @@ class Floor(Function):
 
 
 class Round(Function):
-    ''' Round function, see :py:obj:`math.round`
+    ''' Round function, see :py:obj:`round`
+    .. code-block:: py
+
+        >>> r = Round(Variable('x'))
+        >>> r.evaluate(x=1.3)
+        Real(1.3)
+        >>> r.evaluate(x=1.532)
+        Real(1.53)
+        >>> r.evaluate(x=y)
+        Round(y, places=2)
+        >>> r = Round(Variable('x'), n_places=3)
+        >>> r.evaluate(x=3.2222)
+        Real(3.222)
+
+    Inherits same parameters as :class:`Function`
+
+    Parameters
+    ----------
+    n_places: :class:`int`
+        Number of places to round object, defaults to ``2``.
     '''
     def __init__(self, parameter: Any, coefficient: Any = 1, power: Any = 1, n_places: int = 2) -> None:
         super().__init__(parameter, coefficient, power)
