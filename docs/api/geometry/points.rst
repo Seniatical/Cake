@@ -12,7 +12,7 @@
 Points
 ******
 
-.. automodule:: cake.geometry.points
+.. automodule:: points 
     :members:
     :undoc-members:
     :show-inheritance:
