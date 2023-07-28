@@ -80,3 +80,9 @@ from .functions.integral import (
     Round,
 )
 from .functions.roots import Root, Sqrt
+
+from . import (
+    geometry
+)
+
+from .expressions.linear import LinearExpression
