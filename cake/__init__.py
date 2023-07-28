@@ -81,7 +81,5 @@ from .functions.integral import (
 )
 from .functions.roots import Root, Sqrt
 
-from . import (
-    geometry,
-    expressions
-)
+from . import geometry
+from . import expressions
