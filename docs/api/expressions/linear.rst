@@ -5,7 +5,7 @@
     :description: API Reference for interacting with linear expressions in cake.
     :theme-color: #f54646
 
-.. currentmodule:: cake
+.. currentmodule:: cake.expressions
 
 
 ******************

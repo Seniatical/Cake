@@ -5,7 +5,7 @@
     :description: API Reference for interacting with points in cake.
     :theme-color: #f54646
 
-.. currentmodule:: cake
+.. currentmodule:: cake.geometry
 
 
 ******
