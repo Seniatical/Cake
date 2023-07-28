@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from cake._abc import BasicExpression, Like
-from cake import Add, Expression, geometry, Variable, utils
+from cake import Add, Expression, Variable, utils
+import cake
 
 
 class LinearExpression(BasicExpression, Like[Expression]):
@@ -69,7 +70,7 @@ class LinearExpression(BasicExpression, Like[Expression]):
         return self.__m
 
     @classmethod
-    def from_points(cls, point1: geometry.Point2D, point2: geometry.Point2D, /) -> LinearExpression:
+    def from_points(cls, point1: 'cake.geometry.Point2D', point2: 'cake.geometry.Point2D', /) -> LinearExpression:
         ''' Returns a linear expression from 2 given 2D points
 
         Parameters
