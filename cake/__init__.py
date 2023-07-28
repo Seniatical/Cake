@@ -82,7 +82,6 @@ from .functions.integral import (
 from .functions.roots import Root, Sqrt
 
 from . import (
-    geometry
+    geometry,
+    expressions
 )
-
-from .expressions.linear import LinearExpression
