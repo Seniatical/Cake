@@ -80,3 +80,8 @@ from .functions.integral import (
     Round,
 )
 from .functions.roots import Root, Sqrt
+
+from . import (
+    geometry,
+    expressions
+)

@@ -40,7 +40,9 @@ packages = [
     'cake.constants',
     'cake.core',
     'cake.core.expressions',
-    'cake.functions'
+    'cake.functions',
+    'cake.expressions',
+    'cake.geometry',
 ]
 
 setup(
