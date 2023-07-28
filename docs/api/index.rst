@@ -34,6 +34,14 @@ Constants
     constants/core
     constants/basic
 
+Expressions
+-----------
+
+.. toctree::
+    :titlesonly:
+
+    expressions/linear
+
 
 Functions
 ---------
@@ -44,6 +52,14 @@ Functions
     functions/trig
     functions/roots
     functions/integral
+
+Geometry
+--------
+
+.. toctree::
+    :titlesonly:
+
+    geometry/points
 
 
 Others
