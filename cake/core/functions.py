@@ -30,6 +30,7 @@ __add__, __radd__, __iadd__
 __sub__, __rsub__, __isub__
 __mul__, __rmul__, __imul__, __neg__
 __pow__, __rpow__, __ipow__
+__truediv__, __rtruediv__, __itruediv__
 
 __eq__, __ne__
 __lt__, __le__, __gt__, __ge__
@@ -243,3 +244,16 @@ class Function(cake.IFunction, ABC):
         return cake.Expression(cake.Power(other, self.copy()))
 
     __ipow__ = __pow__
+
+    def __truediv__(self, other: OtherType) -> Any:
+        if isinstance(other, Function):
+            if (other.name == self.name) and (x := other.parameter == self.parameter) and not isinstance(x, cake.Comparity):
+                f = self.copy()
+                f.power -= other.power
+                return f
+        return cake.Expression(cake.Divide(self.copy(), other))
+
+    def __rtruediv__(self, other: OtherType) -> Any:
+        return cake.Expression(cake.Divide(other, self.copy()))
+
+    __itruediv__ = __truediv__
