@@ -1,4 +1,4 @@
-__version__ = '0.1.4'
+__version__ = '0.2.0a2'
 __author__ = 'Seniatical'
 
 from ._abc import (
