@@ -87,7 +87,23 @@ class QuadraticExpression(PolynomialExpression):
 
     @classmethod
     def from_expression(cls, expr: Expression) -> QuadraticExpression:
-        raise NotImplemented
+        ''' Converts a :class:`Expression` to a :class:`cake.expressions.QuadraticExpression`.
+
+        .. note::
+            Expression must be in the form ``Add(ax**2, bx, c, [...])``
+        '''
+        try:
+            assert isinstance(expr.exp, Add)
+            a, b, *c = expr.exp.nodes
+
+            if len(c) > 1:
+                c = Expression(Add(*c))
+            else:
+                c = c[0]
+            return QuadraticExpression(a.coefficient, b.coefficient, c)
+
+        except (AssertionError, AttributeError, ValueError):
+            raise TypeError('Invalid expression passed')
 
     ''' Properties '''
 
@@ -105,7 +121,6 @@ class QuadraticExpression(PolynomialExpression):
     def has_min(self) -> bool:
         ''' Returns whether a graph has a minimum point '''
         return (x := self.a > 0) and not isinstance(x, cake.Comparity)
-
 
     ''' Internals '''
 
