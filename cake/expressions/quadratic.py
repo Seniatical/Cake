@@ -70,6 +70,14 @@ class QuadraticExpression(PolynomialExpression):
         if evaluate:
             return left.solve(**ev_kwds), right.solve(**ev_kwds)
         return left, right
+
+    def turning_point(self) -> 'cake.geometry.Point2D':
+        ''' Works out the min/max point on the curve
+        '''
+        d = self.differentiate()
+        h = d.r_solve(y=0)
+
+        return cake.geometry.Point2D(h, self.solve(x=h))
         
     ''' Class methods '''
 
