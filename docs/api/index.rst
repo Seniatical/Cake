@@ -41,6 +41,7 @@ Expressions
     :titlesonly:
 
     expressions/linear
+    expressions/quadratic
 
 
 Functions
