@@ -155,7 +155,7 @@ class Sqrt(Root):
             return Sqrt(a).true_value(**kwds) * 1j
 
         v **= Real(0.5)
-        value = self._try_solve_co(kwds) * (v ** self._try_solve_pow(kwds))
+        value = utils.solve_if_possible(self.coefficient, **kwds) * (v ** utils.solve_if_possible(self.power, **kwds))
 
         if (use_postprocess or self.auto_postprocess) and self.postprocessor:
             return self.postprocessor(value)

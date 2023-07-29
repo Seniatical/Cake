@@ -62,12 +62,14 @@ class QuadraticExpression(PolynomialExpression):
     def discriminant(self) -> Any:
         return Sqrt((self.b ** 2) - (4 * self.a * self.c))
 
-    def roots(self, **kwds) -> Tuple[Any, Any]:
+    def roots(self, *, evaluate: bool = True, **ev_kwds) -> Tuple[Any, Any]:
         ''' Returns roots of quadratic '''
         left: Expression = (-self.b + self.discriminant()) / (self.a * 2)
         right: Expression = (-self.b - self.discriminant()) / (self.a * 2)
 
-        return left.solve(**kwds), right.solve(**kwds)
+        if evaluate:
+            return left.solve(**ev_kwds), right.solve(**ev_kwds)
+        return left, right
         
     ''' Class methods '''
 

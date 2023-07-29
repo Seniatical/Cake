@@ -345,6 +345,16 @@ class Complex(Number, IComplex, numbers.Complex, type=complex):
         >>> Complex(1, 2j) == 1+2j
         True
     '''
+    @property
+    def imag(self) -> Any:
+        return self.value.imag
+
+    @property
+    def real(self) -> Any:
+        return self.value.real
+
+    def conjugate(self) -> Any:
+        return Complex(self.real, -self.imag)
 
 
 class Real(Complex, IReal, numbers.Real, type=float):

@@ -76,95 +76,97 @@ class Expression(BasicExpression):
     def __init__(self, starting_op: Operation) -> None:
         self.exp = starting_op
 
-    def _try_get_child_value(self, child: Any, **kwds) -> Any:
+    def _try_get_child_value(self, child: Any, true_value: bool, **kwds) -> Any:
         if hasattr(child, 'solve'):
             return child.solve(**kwds)
+        elif hasattr(child, 'true_value') and true_value:
+            return child.true_value(**kwds)
         elif hasattr(child, 'evaluate'):
             return child.evaluate(**kwds)
         elif isinstance(child, Operation):
-            return self._identify_helper(child, raise_not_impl=True)(child, **kwds)
+            return self._identify_helper(child, raise_not_impl=True)(child, true_value=true_value, **kwds)
         return child
 
     ''' Operations '''
     
-    def _add(self, node: Add, **kwds) -> Any:
+    def _add(self, node: Add, *, true_value: bool = False, **kwds) -> Any:
         r = 0
         for child in node.nodes:
             try:
-                r += self._try_get_child_value(child, **kwds)
+                r += self._try_get_child_value(child, true_value, **kwds)
             except Exception:
                 r += child
         return r
 
-    def _multiply(self, node: Multiply, **kwds) -> Any:
+    def _multiply(self, node: Multiply, *, true_value: bool = False, **kwds) -> Any:
         r = self._try_get_child_value(node.nodes[0], **kwds)
         for child in node.nodes[1:]:
             try:
-                r *= self._try_get_child_value(child, **kwds)
+                r *= self._try_get_child_value(child, true_value, **kwds)
             except Exception:
                 r *= child
         return r
 
-    def _power(self, node: Power, **kwds) -> Any:
+    def _power(self, node: Power, *, true_value: bool = False, **kwds) -> Any:
         base, power = node.nodes        ## Validates is true power op
-        base = self._try_get_child_value(base, **kwds)
-        power = self._try_get_child_value(power, **kwds)
+        base = self._try_get_child_value(base, true_value, **kwds)
+        power = self._try_get_child_value(power, true_value, **kwds)
 
         return base ** power
 
-    def _truediv(self, node: Divide, **kwds) -> Any:
+    def _truediv(self, node: Divide, *, true_value: bool = False, **kwds) -> Any:
         numerator, denominator = node.nodes      ## Validates node is a division
-        numerator = self._try_get_child_value(numerator, **kwds)
-        denominator = self._try_get_child_value(denominator, **kwds)
+        numerator = self._try_get_child_value(numerator, true_value, **kwds)
+        denominator = self._try_get_child_value(denominator, true_value, **kwds)
 
         return numerator / denominator
 
-    def _floordiv(self, node: Divide, **kwds) -> Any:
+    def _floordiv(self, node: Divide, *, true_value: bool = False, **kwds) -> Any:
         numerator, denominator = node.nodes
-        numerator = self._try_get_child_value(numerator, **kwds)
-        denominator = self._try_get_child_value(denominator, **kwds)
+        numerator = self._try_get_child_value(numerator, true_value, **kwds)
+        denominator = self._try_get_child_value(denominator, true_value, **kwds)
 
         return numerator // denominator
 
-    def _modulo(self, node: Divide, **kwds) -> Any:
+    def _modulo(self, node: Divide, *, true_value: bool = False, **kwds) -> Any:
         numerator, denominator = node.nodes
-        numerator = self._try_get_child_value(numerator, **kwds)
-        denominator = self._try_get_child_value(denominator, **kwds)
+        numerator = self._try_get_child_value(numerator, true_value, **kwds)
+        denominator = self._try_get_child_value(denominator, true_value, **kwds)
 
         return numerator % denominator
 
-    def _leftshift(self, node: LeftShift, **kwds) -> Any:
+    def _leftshift(self, node: LeftShift, *, true_value: bool = False, **kwds) -> Any:
         left, right = node.nodes
-        left = self._try_get_child_value(left, **kwds)
-        right = self._try_get_child_value(right, **kwds)
+        left = self._try_get_child_value(left, true_value, **kwds)
+        right = self._try_get_child_value(right, true_value, **kwds)
 
         return left << right
 
-    def _rightshift(self, node: LeftShift, **kwds) -> Any:
+    def _rightshift(self, node: RightShift, *, true_value: bool = False, **kwds) -> Any:
         left, right = node.nodes
-        left = self._try_get_child_value(left, **kwds)
-        right = self._try_get_child_value(right, **kwds)
+        left = self._try_get_child_value(left, true_value, **kwds)
+        right = self._try_get_child_value(right, true_value, **kwds)
 
         return left >> right
 
-    def _and(self, node: LeftShift, **kwds) -> Any:
+    def _and(self, node: And, *, true_value: bool = False, **kwds) -> Any:
         left, right = node.nodes
-        left = self._try_get_child_value(left, **kwds)
-        right = self._try_get_child_value(right, **kwds)
+        left = self._try_get_child_value(left, true_value, **kwds)
+        right = self._try_get_child_value(right, true_value, **kwds)
 
         return left & right
 
-    def _xor(self, node: LeftShift, **kwds) -> Any:
+    def _xor(self, node: Xor, *, true_value: bool = False, **kwds) -> Any:
         left, right = node.nodes
-        left = self._try_get_child_value(left, **kwds)
-        right = self._try_get_child_value(right, **kwds)
+        left = self._try_get_child_value(left, true_value, **kwds)
+        right = self._try_get_child_value(right, true_value, **kwds)
 
         return left ^ right
 
-    def _or(self, node: LeftShift, **kwds) -> Any:
+    def _or(self, node: Or, *, true_value: bool = False, **kwds) -> Any:
         left, right = node.nodes
-        left = self._try_get_child_value(left, **kwds)
-        right = self._try_get_child_value(right, **kwds)
+        left = self._try_get_child_value(left, true_value, **kwds)
+        right = self._try_get_child_value(right, true_value, **kwds)
 
         return left | right
 
@@ -202,9 +204,14 @@ class Expression(BasicExpression):
             raise NotImplemented
         return None
 
-    def solve(self, **values) -> Any:
+    def solve(self, /, true_value: bool = False, **values) -> Any:
         ''' Produces a solution to the expression using provided values.
         Any variables in the expression must be passed as a **kwarg**!
+
+        Parameters
+        ----------
+        true_value: :class:`bool`
+            Whether to use ``true_value`` when evaluating :class:`Sqrt`
 
         .. code-block:: py
 
@@ -220,7 +227,7 @@ class Expression(BasicExpression):
         ## We add onto 0, if x is provided, compute and add if possible else expression
         ## if x is not provided we create an add expression for Add(..., Power(3, x))
 
-        r = self._identify_helper(raise_not_impl=True)(self.exp, **values)
+        r = self._identify_helper(raise_not_impl=True)(self.exp, true_value=true_value, **values)
         if isinstance(r, Operation):
             return Expression(r)
         return r
