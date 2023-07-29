@@ -109,9 +109,13 @@ class Sqrt(Root):
         try:
             bases = _prime_factors(v)
         except TypeError:
-            return Sqrt(v)
+            bases = []
 
         if not bases or len(bases) == 1:
+            if v == 0:
+                return 0
+            elif v < 0:
+                return Sqrt(-v, coefficient=1j)
             return Sqrt(v)
 
         groups = []
@@ -146,6 +150,10 @@ class Sqrt(Root):
         Inherits all parameters from :meth:`Function.evaluate`
         '''
         v = self._evaluate(to_rad=to_radians, prehandler=use_prehandler, o_v=True, **kwds)
+        if v < 0:
+            a = -v
+            return Sqrt(a).true_value(**kwds) * 1j
+
         v **= Real(0.5)
         value = self._try_solve_co(kwds) * (v ** self._try_solve_pow(kwds))
 
