@@ -91,6 +91,16 @@ class QuadraticExpression(PolynomialExpression):
 
         .. note::
             Expression must be in the form ``Add(ax**2, bx, c, [...])``
+
+        Parameters
+        ----------
+        expr: :class:`Expression`
+            Expression to convert
+
+        Raises
+        ------
+        :py:obj:`TypeError`: 
+            Expression of incorrect form was passed
         '''
         try:
             assert isinstance(expr.exp, Add)
