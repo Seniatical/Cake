@@ -1,15 +1,16 @@
 ## Linear expressions
 from __future__ import annotations
-from typing import Any
+from typing import Any, Tuple
 
-from cake._abc import BasicExpression, Like
 from cake import Add, Expression, Variable, utils
 import cake
 
+from .core import PolynomialExpression
 
-class LinearExpression(BasicExpression, Like[Expression]):
+
+class LinearExpression(PolynomialExpression):
     ''' Represents a basic linear expression, 
-    this expression can also be expressed as **``y = mx + c``**.
+    this expression can also be expressed as ``y = mx + c``.
 
     Parameters
     ----------
@@ -19,9 +20,12 @@ class LinearExpression(BasicExpression, Like[Expression]):
         Intercept of expression
     '''
     def __init__(self, m: Any, c: Any) -> None:
-        self.__m = m
-        self.__c = c
-        self.__exp = Expression(Add(Variable('x', coefficient=self.__m), self.__c))
+        self.m = m
+        self.c = c
+
+    def as_expression(self) -> Expression:
+        ''' Returns a :class:`Expression` in the form of a :class:`LinearExpression` ''' 
+        return Expression(Add(Variable('x', coefficient=self.m), self.c))
 
     def solve(self, x: Any, **kwds) -> Any:
         ''' Returns a value for when ``x`` is given,
@@ -36,7 +40,7 @@ class LinearExpression(BasicExpression, Like[Expression]):
             12.5
         '''
         kwds.update(x=x)
-        return self.__exp.solve(**kwds)
+        return self.as_expression().solve(**kwds)
 
     def r_solve(self, y: Any, **kwds) -> Any:
         ''' Returns a value for when ``y`` is given,
@@ -54,20 +58,33 @@ class LinearExpression(BasicExpression, Like[Expression]):
         '''
         kwds.update(y=y)
         r = getattr(y, 'copy', lambda: y)()
-        r -= utils.solve_if_possible(self.__c, **kwds)
-        r /= utils.solve_if_possible(self.__m, **kwds)
+        r -= utils.solve_if_possible(self.c, **kwds)
+        r /= utils.solve_if_possible(self.m, **kwds)
 
         return r
+
+    def differentiate(self) -> Variable:
+        return getattr(self.m, 'copy', lambda: self.m)()
+
+    def integrate(self) -> 'cake.expressions.QuadraticExpression':
+        return cake.expressions.QuadraticExpression(a=self.m / 2, b=self.c, c=0)
+
+    def roots(self) -> Tuple[Any, ...]:
+        return (self.r_solve(y=0),)
+
+    ''' Properties and setters ''' 
 
     @property
     def gradient(self) -> Any:
         ''' Returns the gradient of the expression '''
-        return self.__m
+        return self.m
     
     @property
     def intercept(self) -> Any:
         ''' Returns the intercept of the expression '''
-        return self.__m
+        return self.m
+
+    ''' Classmethods '''
 
     @classmethod
     def from_points(cls, point1: 'cake.geometry.Point2D', point2: 'cake.geometry.Point2D', /) -> LinearExpression:
@@ -108,6 +125,11 @@ class LinearExpression(BasicExpression, Like[Expression]):
         expr: :class:`Expression`
             Expression to use, must be in the form ``Add(variable, Any, ...)``
             Any values after ``Any`` will expressed as ``Add(Any, ...)``
+
+        Raises
+        ------
+        :py:obj:`TypeError`: 
+            Invalid expression was given, either operation was not Add or it didn't match the valid pattern.
         '''
         if not isinstance(expr.exp, Add):
             raise TypeError('Invalid expression passed')
@@ -125,8 +147,10 @@ class LinearExpression(BasicExpression, Like[Expression]):
             raise TypeError('Invalid expression passed')
         return LinearExpression(gradient, intercept)
 
+    ''' Internal '''
+
     def __str__(self) -> str:
-        return f'{self.__m}*x + {self.__c}'
+        return f'{self.m}*x + {self.c}'
 
     def __repr__(self) -> str:
-        return f'LinearExpression(m={repr(self.__m)}, c={repr(self.__m)})'
+        return f'LinearExpression(m={repr(self.m)}, c={repr(self.m)})'
