@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Tuple
 
 from .core import PolynomialExpression
-from cake import Add, Sqrt, Expression, Variable, utils
+from cake import Add, Sqrt, Expression, Variable
 import cake
 
 
@@ -93,7 +93,19 @@ class QuadraticExpression(PolynomialExpression):
 
     @property
     def intercept(self) -> Any:
+        ''' Returns when the graph intersects the y axis '''
         return self.c
+
+    @property
+    def has_max(self) -> bool:
+        ''' Returns whether a graph has a maximum point '''
+        return (x := self.a < 0) and not isinstance(x, cake.Comparity)
+
+    @property
+    def has_min(self) -> bool:
+        ''' Returns whether a graph has a minimum point '''
+        return (x := self.a > 0) and not isinstance(x, cake.Comparity)
+
 
     ''' Internals '''
 
