@@ -1,14 +1,17 @@
 ## Linear expressions
 from __future__ import annotations
-from typing import Any, Tuple
+from typing import Any, Tuple, TypeVar, Generic
 
 from cake import Add, Expression, Variable, utils
 import cake
 
 from .core import PolynomialExpression
 
+M = TypeVar('M')
+C = TypeVar('C')
 
-class LinearExpression(PolynomialExpression):
+
+class LinearExpression(PolynomialExpression, Generic[M, C]):
     ''' Represents a basic linear expression, 
     this expression can also be expressed as ``y = mx + c``.
 
@@ -19,7 +22,7 @@ class LinearExpression(PolynomialExpression):
     c: Any[Like[cake.BasicNode]]
         Intercept of expression
     '''
-    def __init__(self, m: Any, c: Any) -> None:
+    def __init__(self, m: M, c: C) -> None:
         self.m = m
         self.c = c
 
@@ -63,7 +66,7 @@ class LinearExpression(PolynomialExpression):
 
         return r
 
-    def differentiate(self) -> Variable:
+    def differentiate(self) -> M:
         return getattr(self.m, 'copy', lambda: self.m)()
 
     def integrate(self) -> 'cake.expressions.QuadraticExpression':
@@ -75,12 +78,12 @@ class LinearExpression(PolynomialExpression):
     ''' Properties and setters ''' 
 
     @property
-    def gradient(self) -> Any:
+    def gradient(self) -> M:
         ''' Returns the gradient of the expression '''
         return self.m
     
     @property
-    def intercept(self) -> Any:
+    def intercept(self) -> C:
         ''' Returns the intercept of the expression '''
         return self.m
 
