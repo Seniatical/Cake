@@ -22,6 +22,8 @@ class LinearExpression(PolynomialExpression, Generic[M, C]):
     c: Any[Like[cake.BasicNode]]
         Intercept of expression
     '''
+    max_power: int = 1
+
     def __init__(self, m: M, c: C) -> None:
         self.m = m
         self.c = c
