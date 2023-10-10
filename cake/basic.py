@@ -224,21 +224,29 @@ class Real(Complex):
 
 
 class Rational(Real):
-    ''' Represents a rational number '''
+    ''' Represents a rational number aka a fraction '''
     value: float
     numerator: Number
     denominator: Number
 
     def __init__(self, value_or_numerator, denominator = None) -> None:
         if not denominator:
-            value_or_numerator = float(value_or_numerator)
+            real_value = float(value_or_numerator)
 
-            self._Number__value = value_or_numerator
-            self.numerator, self.denominator = value_or_numerator
+            self._Number__value = real_value
+            self.numerator, self.denominator = real_value.as_integer_ratio()
         else:
             self._Number__value = value_or_numerator / denominator
             self.numerator = value_or_numerator
             self.denominator = denominator
+
+    def __repr__(self) -> str:
+        return f'({self.numerator}/{self.denominator})'
+    
+    __str__ = __repr__
+
+    def add(self, other: Any, *, quick_compute: bool = False) -> Any:
+        ''' Adds 2 values as a fraction, returning a rational '''
 
 
 class Integral(Rational):

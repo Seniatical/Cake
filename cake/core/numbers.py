@@ -384,6 +384,14 @@ class Rational(Real, IRational, numbers.Rational, type=float):
         >>> Rational(1.5) == 1.5
         True
     '''
+    ## Bypass absract base class issues before initialising class
+    denominator: Number = 0
+    numerator: Number = 0
+
+    def __repr__(self) -> str:
+        return super(IRational, self).__repr__()
+    
+    __str__ = __repr__
 
 
 class Integral(Rational, IIntegeral, numbers.Integral, type=int):
