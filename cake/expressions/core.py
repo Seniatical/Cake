@@ -25,6 +25,8 @@ class ExpressionBase(BasicExpression, Like[Expression], ABC):
 
 
 class PolynomialExpression(ExpressionBase):
+    max_power: int
+    ''' Highest power in the expression '''
 
     @abstractmethod
     def differentiate(self) -> Any:
