@@ -15,7 +15,7 @@ class QuadraticExpression(PolynomialExpression):
     a, b, c: Any[Like[cake.BasicNode]]
         Values for expression
     '''
-    max_power: int = 2
+    degree: int = 2
 
     def __init__(self, a: Any, b: Any, c: Any) -> None:
         self.a = a

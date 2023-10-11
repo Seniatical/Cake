@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Tuple, Union
 import numbers
 
-from cake import Variable, Expression, Add, Rational
+from cake import Variable, Expression, Add
 
 from .core import PolynomialExpression
 
@@ -33,6 +33,9 @@ class Polynomial(PolynomialExpression):
                     raise TypeError('Invalid representation received, expected {} got {}'.format(self._chosen_factor, arg.representation))
                 elif not self._chosen_factor:
                     self._chosen_factor = arg.representation
+
+            if arg == 0:
+                continue
             
             # Verfied they are of correct type
 
@@ -46,10 +49,10 @@ class Polynomial(PolynomialExpression):
             else:
                 self._cleaned_args[power] = arg
 
-        self._expr = sum(self._cleaned_args.values())
+        self._expr: Expression = sum(self._cleaned_args.values())
 
     @property
-    def max_power(self) -> int:
+    def degree(self) -> int:
         return max(self._cleaned_args.keys())
 
     def solve(self, **kwds) -> Any:
@@ -81,7 +84,11 @@ class Polynomial(PolynomialExpression):
     
 
     def roots(self) -> Tuple[Any, ...]:
-        return super().roots()
+        '''
+        Works out an approximation of the roots of a polynomial,
+        for more accurate versions we recomend trying to use some of our built in expressions.
+        '''
+        
     
 
     def differentiate(self) -> Union[Polynomial, Any]:
@@ -95,6 +102,7 @@ class Polynomial(PolynomialExpression):
             new_args.append(Variable(self._chosen_factor, coeff, power))
         return Polynomial(*new_args)
     
+
     def integrate(self) -> Polynomial:
         new_args = []
         for arg in self._cleaned_args.values():
@@ -107,6 +115,7 @@ class Polynomial(PolynomialExpression):
             new_args.append(Variable(self._chosen_factor, coeff, power))
         return Polynomial(*new_args)
     
+
     def generic(self, length: int) -> Polynomial:
         return super().generic()
     
